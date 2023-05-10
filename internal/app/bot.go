@@ -4,11 +4,11 @@ import (
 	"github.com/joho/godotenv"
 	pgClient "github.com/vi350/vk-internship/internal/app/clients/postgres"
 	tgClient "github.com/vi350/vk-internship/internal/app/clients/telegram"
+	"github.com/vi350/vk-internship/internal/app/consumer/event_consumer"
 	"github.com/vi350/vk-internship/internal/app/events"
 	"github.com/vi350/vk-internship/internal/app/events/telegram"
 	"github.com/vi350/vk-internship/internal/app/storage/game_storage"
 	"github.com/vi350/vk-internship/internal/app/storage/user_storage"
-	"github.com/vi350/vk-internship/internal/consumer/event_consumer"
 	"os"
 )
 

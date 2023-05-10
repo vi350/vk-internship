@@ -42,9 +42,6 @@ func (c Consumer) Start() error {
 
 // TODO: add wait group
 func (c Consumer) handleEvents(handlingEvents []events.Event) error {
-	if len(handlingEvents) == 0 {
-		return nil
-	}
 	for _, event := range handlingEvents {
 		log.Printf("handling event: %v\n", event)
 		if err := c.processor.Process(event); err != nil {
