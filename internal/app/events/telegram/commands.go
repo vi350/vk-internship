@@ -2,7 +2,7 @@ package telegram
 
 import (
 	"github.com/vi350/vk-internship/internal/app/clients/telegram"
-	"github.com/vi350/vk-internship/internal/app/storage"
+	"github.com/vi350/vk-internship/internal/app/storage/user_storage"
 	"log"
 	"strings"
 	"time"
@@ -16,10 +16,10 @@ func (ep *EventProcessor) doCommand(text string, user telegram.User) (err error)
 	switch {
 	case strings.HasPrefix(text, "/start"):
 		var exists bool
-		if exists, err = ep.storage.IsExistUser(user.ID); err != nil {
+		if exists, err = ep.userStorage.IsExist(user.ID); err != nil {
 			return err
 		} else if exists {
-			if err = ep.storage.SetStateUser(user.ID, storage.MainMenu); err != nil {
+			if err = ep.userStorage.SetState(user.ID, user_storage.MainMenu); err != nil {
 				return err
 			}
 			if err = ep.tgcli.SendTextMessage(user.ID, startMessage); err != nil {
@@ -32,17 +32,19 @@ func (ep *EventProcessor) doCommand(text string, user telegram.User) (err error)
 			}
 			if len(text) > 6 {
 				text = text[7:]
+			} else {
+				text = ""
 			}
-			userToStore := storage.User{
+			userToStore := user_storage.User{
 				ID:        user.ID,
 				FirstName: user.FirstName,
 				Username:  user.Username,
 				StartDate: time.Now().Unix(),
 				Language:  user.LanguageCode,
-				State:     storage.MainMenu,
+				State:     user_storage.MainMenu,
 				Refer:     text,
 			}
-			if err = ep.storage.SaveUser(&userToStore); err != nil {
+			if err = ep.userStorage.Save(&userToStore); err != nil {
 				return err
 			}
 			if err = ep.tgcli.SendTextMessage(user.ID, startMessage); err != nil {

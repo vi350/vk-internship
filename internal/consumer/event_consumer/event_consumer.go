@@ -33,7 +33,7 @@ func (c Consumer) Start() error {
 			time.Sleep(1 * time.Second)
 		}
 
-		if err := c.handleEvents(gotEvents); err != nil {
+		if err = c.handleEvents(gotEvents); err != nil {
 			log.Printf("failed to handle events: %v\n", err)
 			continue
 		}
@@ -49,7 +49,7 @@ func (c Consumer) handleEvents(handlingEvents []events.Event) error {
 		log.Printf("handling event: %v\n", event)
 		if err := c.processor.Process(event); err != nil {
 			return e.WrapIfErr("failed to process event: ", err)
-			// continue (if other if statements used)
+			// continue (if other "if" statements used)
 		}
 	}
 	return nil

@@ -1,13 +1,22 @@
 package postgres
 
 import (
-	"github.com/go-pg/pg"
+	"database/sql"
+	"fmt"
 	"github.com/vi350/vk-internship/internal/app/e"
 	"log"
 	"os"
 )
 
-func newPgOptions() *pg.Options {
+type Config struct {
+	DBName   string
+	Host     string
+	Port     string
+	User     string
+	Password string
+}
+
+func newPgOptions() *Config {
 	var host string
 	if os.Getenv("INSIDE_A_DOCKER") == "Yes" {
 		host = os.Getenv("POSTGRES_CONTAINER_HOST")
@@ -34,33 +43,29 @@ func newPgOptions() *pg.Options {
 		log.Panicf("Variable POSTGRES_DB was not specified in the .env file")
 	}
 
-	addr := host + ":" + port
-
-	return &pg.Options{
-		Addr:     addr,
+	return &Config{
+		DBName:   database,
+		Host:     host,
+		Port:     port,
 		User:     user,
 		Password: password,
-		Database: database,
 	}
 }
 
-func connect() (p *pg.DB, err error) {
-	defer func() { err = e.WrapIfErr("error performing request: ", err) }()
-	DB := pg.Connect(newPgOptions())
+func connect() (p *sql.DB, err error) {
+	defer func() { err = e.WrapIfErr("error connecting to db: ", err) }()
+	conf := newPgOptions()
+	dbConnectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		conf.Host, conf.Port, conf.User, conf.Password, conf.DBName)
 
-	if err = statusErr(DB); err != nil {
+	db, err := sql.Open("postgres", dbConnectionString)
+	if err != nil {
 		return nil, err
 	}
 
-	return p, nil
-}
-
-func statusErr(p *pg.DB) (err error) {
-	defer func() { err = e.WrapIfErr("error performing select 1: ", err) }()
-
-	if _, err = p.Exec("SELECT 1"); err != nil {
-		return err
+	if err = db.Ping(); err != nil {
+		return nil, err
 	}
 
-	return nil
+	return db, nil
 }

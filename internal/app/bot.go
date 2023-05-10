@@ -2,11 +2,12 @@ package app
 
 import (
 	"github.com/joho/godotenv"
+	pgClient "github.com/vi350/vk-internship/internal/app/clients/postgres"
 	tgClient "github.com/vi350/vk-internship/internal/app/clients/telegram"
 	"github.com/vi350/vk-internship/internal/app/events"
 	"github.com/vi350/vk-internship/internal/app/events/telegram"
-	"github.com/vi350/vk-internship/internal/app/storage"
-	"github.com/vi350/vk-internship/internal/app/storage/postgres"
+	"github.com/vi350/vk-internship/internal/app/storage/game_storage"
+	"github.com/vi350/vk-internship/internal/app/storage/user_storage"
 	"github.com/vi350/vk-internship/internal/consumer/event_consumer"
 	"os"
 )
@@ -15,7 +16,8 @@ const batchSize = 100
 
 type Bot struct {
 	tgcli            *tgClient.Client
-	storage          storage.Storage
+	userStorage      *user_storage.UserStorage
+	gameStorage      *game_storage.GameStorage
 	tgEventProcessor events.EventProcessor
 	consumer         event_consumer.Consumer
 }
@@ -30,10 +32,10 @@ func New() (*Bot, error) {
 	if b.tgcli, err = tgClient.New(os.Getenv("TELEGRAM_HOST"), os.Getenv("TELEGRAM_TOKEN")); err != nil {
 		return nil, err
 	}
-	if b.storage, err = postgres.New(); err != nil {
-		return nil, err
-	}
-	b.tgEventProcessor = telegram.New(b.tgcli, b.storage)
+	b.userStorage = user_storage.New(pgClient.New())
+	b.gameStorage = game_storage.New(pgClient.New())
+
+	b.tgEventProcessor = telegram.New(b.tgcli, b.userStorage, b.gameStorage)
 	b.consumer = event_consumer.New(b.tgEventProcessor, b.tgEventProcessor, batchSize)
 
 	return b, nil
