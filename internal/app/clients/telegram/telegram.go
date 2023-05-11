@@ -81,13 +81,19 @@ func (c *Client) doRequest(method string, values url.Values) (data []byte, err e
 	return body, nil
 }
 
-// SendTextMessage TODO: implement keyboards
-func (c *Client) SendTextMessage(ID int64, message string) (err error) {
+func (c *Client) SendTextMessage(ID int64, message string, replyMarkup *ReplyMarkup) (err error) {
 	defer func() { err = e.WrapIfErr("error sending message: ", err) }()
 
 	values := url.Values{}
 	values.Add("chat_id", strconv.FormatInt(ID, 10))
 	values.Add("text", message)
+	if replyMarkup != nil {
+		j, err := json.Marshal(replyMarkup)
+		values.Add("reply_markup", string(j))
+		if err != nil {
+			return err
+		}
+	}
 
 	_, err = c.doRequest(sendMessageMethod, values)
 	if err != nil {
