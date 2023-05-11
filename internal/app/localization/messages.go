@@ -1,4 +1,4 @@
-package telegram
+package localization
 
 type localizedMessages struct {
 	unknownCommandMessage string

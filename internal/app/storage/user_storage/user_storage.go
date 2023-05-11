@@ -3,7 +3,9 @@ package user_storage
 import (
 	"fmt"
 	"github.com/vi350/vk-internship/internal/app/clients/postgres"
+	tgClient "github.com/vi350/vk-internship/internal/app/clients/telegram"
 	"github.com/vi350/vk-internship/internal/app/e"
+	"time"
 )
 
 type UserStorage struct {
@@ -29,6 +31,35 @@ func (us *UserStorage) Save(user *User) (err error) {
 	query := fmt.Sprintf(
 		"INSERT INTO users VALUES ('%d', '%s', '%s', '%d', '%s', '%d', '%s') RETURNING id;",
 		user.ID, user.FirstName, user.Username, user.StartDate, user.Language, user.State, user.Refer,
+	)
+	err = us.DBClient.DB.QueryRow(query).Scan(&user.ID)
+	return err
+}
+
+func (us *UserStorage) SaveFromTg(user *tgClient.User, text string) (err error) {
+	defer func() { err = e.WrapIfErr(saveError, err) }()
+
+	if user.LanguageCode == "" {
+		user.LanguageCode = "en"
+	}
+	if len(text) > 6 {
+		text = text[7:]
+	} else {
+		text = ""
+	}
+	u := &User{
+		ID:        user.ID,
+		FirstName: user.FirstName,
+		Username:  user.Username,
+		StartDate: time.Now().Unix(),
+		Language:  user.LanguageCode,
+		State:     MainMenu,
+		Refer:     text,
+	}
+
+	query := fmt.Sprintf(
+		"INSERT INTO users VALUES ('%d', '%s', '%s', '%d', '%s', '%d', '%s') RETURNING id;",
+		u.ID, u.FirstName, u.Username, u.StartDate, u.Language, u.State, u.Refer,
 	)
 	err = us.DBClient.DB.QueryRow(query).Scan(&user.ID)
 	return err

@@ -24,6 +24,7 @@ func (ep *EventProcessor) processMessage(event events.Event) (err error) {
 	}
 
 	if meta.From.ID == meta.ChatID {
+		// TODO: before processing as a command check entities
 		if err = ep.doCommand(event.Text, meta.From); err != nil {
 			return err
 		}

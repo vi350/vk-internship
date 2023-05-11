@@ -1,14 +1,14 @@
-package telegram
+package localization
 
 import tgClient "github.com/vi350/vk-internship/internal/app/clients/telegram"
 
 type messageType int
 
 const (
-	unknownCommandMessage messageType = iota
-	startMessage
-	helpMessage
-	settingsMessage
+	UnknownCommandMessage messageType = iota
+	StartMessage
+	HelpMessage
+	SettingsMessage
 	ChooseLanguageMessage
 	GoToMainMenuButton
 )
@@ -18,28 +18,28 @@ func GetLocalizedText(mType messageType, language string, variables ...interface
 	// TODO: link localizedMessages fields to constants?
 
 	switch mType {
-	case unknownCommandMessage:
+	case UnknownCommandMessage:
 		switch language {
 		case "en":
 			return enMessages.unknownCommandMessage
 		case "ru":
 			return ruMessages.unknownCommandMessage
 		}
-	case startMessage:
+	case StartMessage:
 		switch language {
 		case "en":
 			return enMessages.startMessage
 		case "ru":
 			return ruMessages.startMessage
 		}
-	case helpMessage:
+	case HelpMessage:
 		switch language {
 		case "en":
 			return enMessages.helpMessage
 		case "ru":
 			return ruMessages.helpMessage
 		}
-	case settingsMessage:
+	case SettingsMessage:
 		switch language {
 		case "en":
 			return enMessages.settingsMessage
@@ -68,7 +68,7 @@ func GetLocalizedText(mType messageType, language string, variables ...interface
 
 func GetLocalizedInlineKeyboardMarkup(mType messageType, language string, variables ...interface{}) tgClient.ReplyMarkup {
 	switch mType {
-	case unknownCommandMessage:
+	case UnknownCommandMessage:
 		return &tgClient.InlineKeyboardMarkup{
 			InlineKeyboard: [][]tgClient.InlineKeyboardButton{
 				[]tgClient.InlineKeyboardButton{tgClient.InlineKeyboardButton{
