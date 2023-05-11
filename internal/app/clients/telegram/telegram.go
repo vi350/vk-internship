@@ -81,7 +81,7 @@ func (c *Client) doRequest(method string, values url.Values) (data []byte, err e
 	return body, nil
 }
 
-func (c *Client) SendTextMessage(ID int64, message string, replyMarkup *ReplyMarkup) (err error) {
+func (c *Client) SendTextMessage(ID int64, message string, replyMarkup ReplyMarkup) (err error) {
 	defer func() { err = e.WrapIfErr("error sending message: ", err) }()
 
 	values := url.Values{}

@@ -68,14 +68,9 @@ type InlineKeyboardMarkup struct {
 	InlineKeyboard [][]InlineKeyboardButton `json:"inline_keyboard"`
 }
 
-func (r InlineKeyboardMarkup) ReplyMarkup() {}
+func (i InlineKeyboardMarkup) ReplyMarkup() {}
 
 type InlineKeyboardButton struct {
-	Text                         string `json:"text"`
-	URL                          string `json:"url"`
-	CallbackData                 string `json:"callback_data"`
-	SwitchInlineQuery            string `json:"switch_inline_query"`
-	SwitchInlineQueryCurrentChat string `json:"switch_inline_query_current_chat"`
-	CallbackGame                 string `json:"callback_game"`
-	Pay                          bool   `json:"pay"`
+	Text         string `json:"text"`
+	CallbackData string `json:"callback_data"`
 }

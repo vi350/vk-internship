@@ -39,7 +39,9 @@ func (ep *EventProcessor) doCommand(text string, userFromMessage telegram.User) 
 				return err
 			}
 			// TODO: send language selection message
-			if err = ep.tgcli.SendTextMessage(userFromMessage.ID, GetLocalizedText(startMessage, userFromStore.Language), nil); err != nil {
+			if err = ep.tgcli.SendTextMessage(userFromMessage.ID,
+				GetLocalizedText(startMessage, userFromMessage.LanguageCode),
+				GetLocalizedInlineKeyboardMarkup(startMessage, userFromMessage.LanguageCode)); err != nil {
 				return err
 			}
 			return nil
@@ -47,7 +49,9 @@ func (ep *EventProcessor) doCommand(text string, userFromMessage telegram.User) 
 			if err = ep.userStorage.SetState(userFromMessage.ID, user_storage.MainMenu); err != nil {
 				return err
 			}
-			if err = ep.tgcli.SendTextMessage(userFromMessage.ID, GetLocalizedText(startMessage, userFromStore.Language), nil); err != nil {
+			if err = ep.tgcli.SendTextMessage(userFromMessage.ID,
+				GetLocalizedText(startMessage, userFromStore.Language),
+				GetLocalizedInlineKeyboardMarkup(startMessage, userFromStore.Language)); err != nil {
 				return err
 			}
 			return nil
@@ -55,12 +59,16 @@ func (ep *EventProcessor) doCommand(text string, userFromMessage telegram.User) 
 		return err
 
 	case strings.HasPrefix(text, "/help"):
-		if err = ep.tgcli.SendTextMessage(userFromMessage.ID, GetLocalizedText(helpMessage, userFromStore.Language), nil); err != nil {
+		if err = ep.tgcli.SendTextMessage(userFromMessage.ID,
+			GetLocalizedText(helpMessage, userFromStore.Language),
+			GetLocalizedInlineKeyboardMarkup(helpMessage, userFromStore.Language)); err != nil {
 			return err
 		}
 
 	default:
-		if err = ep.tgcli.SendTextMessage(userFromMessage.ID, GetLocalizedText(helpMessage, userFromStore.Language), nil); err != nil {
+		if err = ep.tgcli.SendTextMessage(userFromMessage.ID,
+			GetLocalizedText(unknownCommandMessage, userFromStore.Language),
+			GetLocalizedInlineKeyboardMarkup(unknownCommandMessage, userFromStore.Language)); err != nil {
 			return err
 		}
 	}

@@ -10,6 +10,7 @@ const (
 	helpMessage
 	settingsMessage
 	ChooseLanguageMessage
+	GoToMainMenuButton
 )
 
 func GetLocalizedText(mType messageType, language string, variables ...interface{}) string {
@@ -52,7 +53,31 @@ func GetLocalizedText(mType messageType, language string, variables ...interface
 		case "ru":
 			return ruMessages.ChooseLanguageMessage
 		}
+	case GoToMainMenuButton:
+		switch language {
+		case "en":
+			return enMessages.GoToMainMenuButton
+		case "ru":
+			return ruMessages.GoToMainMenuButton
+
+		}
 	}
 
-	return ""
+	return "."
+}
+
+func GetLocalizedInlineKeyboardMarkup(mType messageType, language string, variables ...interface{}) tgClient.ReplyMarkup {
+	switch mType {
+	case unknownCommandMessage:
+		return &tgClient.InlineKeyboardMarkup{
+			InlineKeyboard: [][]tgClient.InlineKeyboardButton{
+				[]tgClient.InlineKeyboardButton{tgClient.InlineKeyboardButton{
+					Text:         GetLocalizedText(GoToMainMenuButton, language),
+					CallbackData: "main_menu", // TODO: move to callback constants
+				}},
+			},
+		}
+	}
+
+	return nil
 }

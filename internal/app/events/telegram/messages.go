@@ -6,6 +6,7 @@ type localizedMessages struct {
 	helpMessage           string
 	settingsMessage       string
 	ChooseLanguageMessage string
+	GoToMainMenuButton    string
 }
 
 var enMessages = localizedMessages{
@@ -14,6 +15,7 @@ var enMessages = localizedMessages{
 	helpMessage:           "I can help you ...",
 	settingsMessage:       "Settings",
 	ChooseLanguageMessage: "Choose language",
+	GoToMainMenuButton:    "Go to main menu",
 }
 
 var ruMessages = localizedMessages{
@@ -22,4 +24,5 @@ var ruMessages = localizedMessages{
 	helpMessage:           "Я могу помочь тебе ...",
 	settingsMessage:       "Settings",
 	ChooseLanguageMessage: "Выберите язык",
+	GoToMainMenuButton:    "Вернуться в главное меню",
 }
