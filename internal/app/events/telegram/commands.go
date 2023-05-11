@@ -1,6 +1,8 @@
 package telegram
 
 import (
+	"database/sql"
+	"errors"
 	"github.com/vi350/vk-internship/internal/app/clients/telegram"
 	"github.com/vi350/vk-internship/internal/app/storage/user_storage"
 	"log"
@@ -8,57 +10,57 @@ import (
 	"time"
 )
 
-func (ep *EventProcessor) doCommand(text string, user telegram.User) (err error) {
+func (ep *EventProcessor) doCommand(text string, userFromMessage telegram.User) (err error) {
 	text = strings.TrimSpace(text)
 
-	log.Printf("user %s:\n sent: %s", user.Username, text)
+	log.Printf("user %s:\n sent: %s", userFromMessage.Username, text)
+
+	var userFromStore *user_storage.User
+	userFromStore, err = ep.userStorage.Read(userFromMessage.ID)
 
 	switch {
 	case strings.HasPrefix(text, "/start"):
-		var exists bool
-		if exists, err = ep.userStorage.IsExist(user.ID); err != nil {
-			return err
-		} else if exists {
-			if err = ep.userStorage.SetState(user.ID, user_storage.MainMenu); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			if userFromMessage.LanguageCode == "" {
+				userFromMessage.LanguageCode = "en"
+			}
+			if len(text) < 6 {
+				text = ""
+			}
+			if err = ep.userStorage.Save(&user_storage.User{
+				ID:        userFromMessage.ID,
+				FirstName: userFromMessage.FirstName,
+				Username:  userFromMessage.Username,
+				StartDate: time.Now().Unix(),
+				Language:  userFromMessage.LanguageCode,
+				State:     user_storage.MainMenu,
+				Refer:     text[7:],
+			}); err != nil {
 				return err
 			}
-			if err = ep.tgcli.SendTextMessage(user.ID, startMessage); err != nil {
+			// TODO: send language selection message
+			if err = ep.tgcli.SendTextMessage(userFromMessage.ID, GetLocalizedText(startMessage, userFromStore.Language), nil); err != nil {
 				return err
 			}
 			return nil
-		} else {
-			if user.LanguageCode == "" {
-				user.LanguageCode = "en"
-			}
-			if len(text) > 6 {
-				text = text[7:]
-			} else {
-				text = ""
-			}
-			userToStore := user_storage.User{
-				ID:        user.ID,
-				FirstName: user.FirstName,
-				Username:  user.Username,
-				StartDate: time.Now().Unix(),
-				Language:  user.LanguageCode,
-				State:     user_storage.MainMenu,
-				Refer:     text,
-			}
-			if err = ep.userStorage.Save(&userToStore); err != nil {
+		} else if err != nil {
+			if err = ep.userStorage.SetState(userFromMessage.ID, user_storage.MainMenu); err != nil {
 				return err
 			}
-			if err = ep.tgcli.SendTextMessage(user.ID, startMessage); err != nil {
+			if err = ep.tgcli.SendTextMessage(userFromMessage.ID, GetLocalizedText(startMessage, userFromStore.Language), nil); err != nil {
 				return err
 			}
+			return nil
 		}
+		return err
 
 	case strings.HasPrefix(text, "/help"):
-		if err = ep.tgcli.SendTextMessage(user.ID, helpMessage); err != nil {
+		if err = ep.tgcli.SendTextMessage(userFromMessage.ID, GetLocalizedText(helpMessage, userFromStore.Language), nil); err != nil {
 			return err
 		}
 
 	default:
-		if err = ep.tgcli.SendTextMessage(user.ID, unknownCommandMessage); err != nil {
+		if err = ep.tgcli.SendTextMessage(userFromMessage.ID, GetLocalizedText(helpMessage, userFromStore.Language), nil); err != nil {
 			return err
 		}
 	}

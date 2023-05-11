@@ -1,7 +1,6 @@
 package user_storage
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/vi350/vk-internship/internal/app/clients/postgres"
 	"github.com/vi350/vk-internship/internal/app/e"
@@ -45,27 +44,6 @@ func (us *UserStorage) Read(id int64) (user *User, err error) {
 	)
 	err = us.DBClient.DB.QueryRow(query).Scan(&u.ID, &u.FirstName, &u.Username, &u.StartDate, &u.Language, &u.State, &u.Refer)
 	return &u, err
-}
-
-func (us *UserStorage) IsExist(id int64) (answer bool, err error) {
-	defer func() { err = e.WrapIfErr(isExistError, err) }()
-
-	// TODO: reuse read code properly (faced error comparison error)
-	// _, err = us.Read(id)
-
-	var u User
-	query := fmt.Sprintf(
-		"SELECT * FROM users WHERE id = '%d';",
-		id,
-	)
-	err = us.DBClient.DB.QueryRow(query).Scan(&u.ID, &u.FirstName, &u.Username, &u.StartDate, &u.Language, &u.State, &u.Refer)
-
-	if err == sql.ErrNoRows {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	}
-	return true, nil
 }
 
 func (us *UserStorage) SetState(id int64, state int) (err error) {

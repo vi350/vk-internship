@@ -1,8 +1,6 @@
 package telegram
 
-import (
-	"github.com/vi350/vk-internship/internal/app/e"
-)
+import tgClient "github.com/vi350/vk-internship/internal/app/clients/telegram"
 
 type messageType int
 
@@ -14,9 +12,7 @@ const (
 	ChooseLanguageMessage
 )
 
-func GetLocalizedText(mType messageType, language string, variables ...interface{}) (answer string, err error) {
-	defer func() { err = e.WrapIfErr("error localising", err) }()
-
+func GetLocalizedText(mType messageType, language string, variables ...interface{}) string {
 	// idea: move to db/config?
 	// TODO: link localizedMessages fields to constants?
 
@@ -24,39 +20,39 @@ func GetLocalizedText(mType messageType, language string, variables ...interface
 	case unknownCommandMessage:
 		switch language {
 		case "en":
-			return enMessages.unknownCommandMessage, nil
+			return enMessages.unknownCommandMessage
 		case "ru":
-			return ruMessages.unknownCommandMessage, nil
+			return ruMessages.unknownCommandMessage
 		}
 	case startMessage:
 		switch language {
 		case "en":
-			return enMessages.startMessage, nil
+			return enMessages.startMessage
 		case "ru":
-			return ruMessages.startMessage, nil
+			return ruMessages.startMessage
 		}
 	case helpMessage:
 		switch language {
 		case "en":
-			return enMessages.helpMessage, nil
+			return enMessages.helpMessage
 		case "ru":
-			return ruMessages.helpMessage, nil
+			return ruMessages.helpMessage
 		}
 	case settingsMessage:
 		switch language {
 		case "en":
-			return enMessages.settingsMessage, nil
+			return enMessages.settingsMessage
 		case "ru":
-			return ruMessages.settingsMessage, nil
+			return ruMessages.settingsMessage
 		}
 	case ChooseLanguageMessage:
 		switch language {
 		case "en":
-			return enMessages.ChooseLanguageMessage, nil
+			return enMessages.ChooseLanguageMessage
 		case "ru":
-			return ruMessages.ChooseLanguageMessage, nil
+			return ruMessages.ChooseLanguageMessage
 		}
 	}
 
-	return "", err
+	return ""
 }
