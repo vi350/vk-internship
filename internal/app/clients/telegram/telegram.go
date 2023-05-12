@@ -40,7 +40,7 @@ func New(host string, token string) (c *Client, err error) {
 	}
 
 	values := url.Values{}
-	data, err := c.doRequest(getMeMethod, values)
+	data, err := c.doRequest(getMeMethod, values, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +182,7 @@ func (c *Client) Updates(offset int64, limit int) (updates []Update, err error) 
 	values.Add("offset", strconv.FormatInt(offset, 10))
 	values.Add("limit", strconv.Itoa(limit))
 
-	data, err := c.doRequest(updatesMethod, values)
+	data, err := c.doRequest(updatesMethod, values, nil, nil)
 	if err != nil {
 		return nil, err
 	}
