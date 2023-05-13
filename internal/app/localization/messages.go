@@ -1,6 +1,7 @@
 package localization
 
 type localizedMessages struct {
+	language                 string
 	unknownCommandMessage    string
 	goToMenuButton           string
 	menuMessage              string
@@ -12,7 +13,9 @@ type localizedMessages struct {
 	chooseLanguageMessage    string
 	goToAboutButton          string
 	aboutMessage             string
-	writeToAdminButton       string
+	writeToTheCreatorButton  string
+	startGameButton          string
+	languageButton           string
 }
 
 const (
@@ -25,30 +28,37 @@ const (
 )
 
 var enMessages = localizedMessages{
-	unknownCommandMessage:    "Unknown command. Enter /help to learn more",
-	goToMenuButton:           "Menu",
-	menuMessage:              "Hello! I'm a bot that will help you ...",
-	goToHelpButton:           "Help",
-	helpMessage:              "I can help you ...",
-	goToSettingsButton:       "Settings",
+	language:                 "en",
+	unknownCommandMessage:    "Unknown command. Enter /start to get to menu",
+	goToMenuButton:           "🏁Menu",
+	menuMessage:              "Hi! This is a bot for checkers game.\nDeveloping is in progress.\nStay tuned!",
+	goToHelpButton:           "📕Help",
+	helpMessage:              "Checkers, is a group of strategy board games for two players which involve diagonal moves of uniform game pieces and mandatory captures by jumping over opponent pieces. The term \"checkers\" derives from the checkered board which the game is played on.",
+	goToSettingsButton:       "🛠Settings",
 	settingsMessage:          "Here you can find settings",
-	goToChooseLanguageButton: "Choose language",
+	goToChooseLanguageButton: "🌍Choose language",
 	chooseLanguageMessage:    "Choose language",
-	goToAboutButton:          "About",
+	goToAboutButton:          "🔎About",
 	aboutMessage:             "About bot",
-	writeToAdminButton:       "Write to admin",
+	writeToTheCreatorButton:  "Write to the creator",
+	startGameButton:          "♟️Start game",
+	languageButton:           "🇺🇸English",
 }
 
 var ruMessages = localizedMessages{
-	unknownCommandMessage:    "Неизвестная команда. Введите /help, чтобы узнать больше",
-	goToMenuButton:           "Меню",
-	menuMessage:              "Привет! Я бот, который поможет тебе ...",
-	goToHelpButton:           "Помощь",
-	helpMessage:              "Я могу помочь тебе ...",
-	goToSettingsButton:       "Настройки",
+	language:                 "ru",
+	unknownCommandMessage:    "Неизвестная команда. Введите /start чтобы перейти в меню",
+	goToMenuButton:           "🏁Меню",
+	menuMessage:              "Привет! Это бот для игры в шашки.\nРазработка в процессе.\nСледите за обновлениями!",
+	goToHelpButton:           "📕Помощь",
+	helpMessage:              "Шашки - это группа стратегических настольных игр для двух игроков, которые предполагают диагональные ходы одинаковых игровых фигур и обязательные захваты путем перепрыгивания через фигуры противника. Термин \"шашки\" происходит от клетчатой доски, на которой ведется игра.",
+	goToSettingsButton:       "🛠Настройки",
 	settingsMessage:          "Здесь ты можешь найти настройки",
-	goToChooseLanguageButton: "Выбрать язык",
+	goToChooseLanguageButton: "🌍Выбрать язык",
 	chooseLanguageMessage:    "Выбери язык",
-	aboutMessage:             "О боте",
-	writeToAdminButton:       "Написать администратору",
+	goToAboutButton:          "🔎О боте",
+	aboutMessage:             "Это бот, разраб",
+	writeToTheCreatorButton:  "Написать создателю",
+	startGameButton:          "♟️Начать игру",
+	languageButton:           "🇷🇺Русский",
 }

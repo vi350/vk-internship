@@ -24,7 +24,7 @@ func (c *Client) EditMediaMessageByUser(userFromRegistry *userStorage.User, mess
 	)
 	err = c.EditMessageCaption(userFromRegistry.ID, message.MessageID,
 		localization.GetLocalizedText(mType, userFromRegistry.Language),
-		localization.GetLocalizedInlineKeyboardMarkup(mType, userFromRegistry.Language),
+		GetLocalizedInlineKeyboardMarkup(mType, userFromRegistry.Language),
 	)
 
 	return

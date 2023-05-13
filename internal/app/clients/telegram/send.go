@@ -20,7 +20,7 @@ func (c *Client) SendTextMessageByUser(userFromRegistry *userStorage.User, mType
 
 	err = c.SendTextMessage(userFromRegistry.ID,
 		localization.GetLocalizedText(mType, userFromRegistry.Language),
-		localization.GetLocalizedInlineKeyboardMarkup(mType, userFromRegistry.Language),
+		GetLocalizedInlineKeyboardMarkup(mType, userFromRegistry.Language),
 	)
 
 	return
@@ -50,7 +50,7 @@ func (c *Client) SendImageByUser(userFromRegistry *userStorage.User, mType local
 	err = c.SendImage(userFromRegistry.ID,
 		localization.GetLocalizedText(mType, userFromRegistry.Language),
 		localization.GetLocalizedImagePath(mType, userFromRegistry.Language, c.ir),
-		localization.GetLocalizedInlineKeyboardMarkup(mType, userFromRegistry.Language),
+		GetLocalizedInlineKeyboardMarkup(mType, userFromRegistry.Language),
 	)
 
 	return

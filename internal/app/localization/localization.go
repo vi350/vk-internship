@@ -1,11 +1,8 @@
 package localization
 
 import (
-	tgClient "github.com/vi350/vk-internship/internal/app/clients/telegram"
 	imageRegistry "github.com/vi350/vk-internship/internal/app/registry/image"
-	"os"
 	"path"
-	"strconv"
 )
 
 type MessageType int
@@ -22,98 +19,122 @@ const (
 	ChooseLanguageMessage
 	GoToAboutButton
 	AboutMessage
-	WriteToAdminButton
+	WriteToTheCreatorButton
+	StartGameButton
+	LanguageButton
+	Language
 )
 
-func GetLocalizedText(mType MessageType, language string, variables ...interface{}) (answer string) {
-	// idea: move to db/config?
+func GetLocalizedText(mType MessageType, language string, variables ...string) (answer string) {
+	// idea: move to db/config?localization.GetLocalizedText(localization.Language, "en")
 	// idea: link localizedMessages fields to constants?
 
 	switch mType {
 	case UnknownCommandMessage:
 		switch language {
-		case "en":
+		case enMessages.language:
 			answer = enMessages.unknownCommandMessage
-		case "ru":
+		case ruMessages.language:
 			answer = ruMessages.unknownCommandMessage
 		}
 	case GoToMenuButton:
 		switch language {
-		case "en":
+		case enMessages.language:
 			answer = enMessages.goToMenuButton
-		case "ru":
+		case ruMessages.language:
 			answer = ruMessages.goToMenuButton
 
 		}
 	case MenuMessage:
 		switch language {
-		case "en":
+		case enMessages.language:
 			answer = enMessages.menuMessage
-		case "ru":
+		case ruMessages.language:
 			answer = ruMessages.menuMessage
 		}
 	case GoToHelpButton:
 		switch language {
-		case "en":
+		case enMessages.language:
 			answer = enMessages.goToHelpButton
-		case "ru":
+		case ruMessages.language:
 			answer = ruMessages.goToHelpButton
 		}
 	case HelpMessage:
 		switch language {
-		case "en":
+		case enMessages.language:
 			answer = enMessages.helpMessage
-		case "ru":
+		case ruMessages.language:
 			answer = ruMessages.helpMessage
 		}
 	case GoToSettingsButton:
 		switch language {
-		case "en":
+		case enMessages.language:
 			answer = enMessages.goToSettingsButton
-		case "ru":
+		case ruMessages.language:
 			answer = ruMessages.goToSettingsButton
 		}
 	case SettingsMessage:
 		switch language {
-		case "en":
+		case enMessages.language:
 			answer = enMessages.settingsMessage
-		case "ru":
+		case ruMessages.language:
 			answer = ruMessages.settingsMessage
 		}
 	case GoToChooseLanguageButton:
 		switch language {
-		case "en":
+		case enMessages.language:
 			answer = enMessages.goToChooseLanguageButton
-		case "ru":
+		case ruMessages.language:
 			answer = ruMessages.goToChooseLanguageButton
 		}
 	case ChooseLanguageMessage:
 		switch language {
-		case "en":
+		case enMessages.language:
 			answer = enMessages.chooseLanguageMessage
-		case "ru":
+		case ruMessages.language:
 			answer = ruMessages.chooseLanguageMessage
 		}
 	case GoToAboutButton:
 		switch language {
-		case "en":
+		case enMessages.language:
 			answer = enMessages.goToAboutButton
-		case "ru":
+		case ruMessages.language:
 			answer = ruMessages.goToAboutButton
 		}
 	case AboutMessage:
 		switch language {
-		case "en":
+		case enMessages.language:
 			answer = enMessages.aboutMessage
-		case "ru":
+		case ruMessages.language:
 			answer = ruMessages.aboutMessage
 		}
-	case WriteToAdminButton:
+	case WriteToTheCreatorButton:
 		switch language {
-		case "en":
-			answer = enMessages.writeToAdminButton
-		case "ru":
-			answer = ruMessages.writeToAdminButton
+		case enMessages.language:
+			answer = enMessages.writeToTheCreatorButton
+		case ruMessages.language:
+			answer = ruMessages.writeToTheCreatorButton
+		}
+	case StartGameButton:
+		switch language {
+		case enMessages.language:
+			answer = enMessages.startGameButton
+		case ruMessages.language:
+			answer = ruMessages.startGameButton
+		}
+	case LanguageButton:
+		switch language {
+		case enMessages.language:
+			answer = enMessages.languageButton
+		case ruMessages.language:
+			answer = ruMessages.languageButton
+		}
+	case Language:
+		switch language {
+		case enMessages.language:
+			answer = enMessages.language
+		case ruMessages.language:
+			answer = ruMessages.language
 		}
 	default:
 		answer = "Error: Unknown message type"
@@ -122,111 +143,7 @@ func GetLocalizedText(mType MessageType, language string, variables ...interface
 	return
 }
 
-func GetLocalizedInlineKeyboardMarkup(mType MessageType, language string, variables ...interface{}) (ikm tgClient.ReplyMarkup) {
-	switch mType {
-	case MenuMessage:
-		ikm = &tgClient.InlineKeyboardMarkup{
-			InlineKeyboard: [][]tgClient.InlineKeyboardButton{
-				//{
-				//	tgClient.InlineKeyboardButton{
-				//		Text:         GetLocalizedText(StartGameButton, language),
-				//		CallbackData: "startGame",
-				//	},
-				//},
-				{
-					tgClient.InlineKeyboardButton{
-						Text:         GetLocalizedText(GoToHelpButton, language),
-						CallbackData: strconv.Itoa(int(GoToHelpButton)),
-					},
-				},
-				{
-					tgClient.InlineKeyboardButton{
-						Text:         GetLocalizedText(GoToSettingsButton, language),
-						CallbackData: strconv.Itoa(int(GoToSettingsButton)),
-					},
-				},
-				{
-					tgClient.InlineKeyboardButton{
-						Text:         GetLocalizedText(GoToAboutButton, language),
-						CallbackData: strconv.Itoa(int(GoToAboutButton)),
-					},
-				},
-			},
-		}
-	case HelpMessage:
-		ikm = &tgClient.InlineKeyboardMarkup{
-			InlineKeyboard: [][]tgClient.InlineKeyboardButton{
-				{
-					tgClient.InlineKeyboardButton{
-						Text:         GetLocalizedText(GoToMenuButton, language),
-						CallbackData: strconv.Itoa(int(GoToMenuButton)),
-					},
-				},
-			},
-		}
-	case SettingsMessage:
-		ikm = &tgClient.InlineKeyboardMarkup{
-			InlineKeyboard: [][]tgClient.InlineKeyboardButton{
-				{
-					tgClient.InlineKeyboardButton{
-						Text:         GetLocalizedText(GoToChooseLanguageButton, language),
-						CallbackData: strconv.Itoa(int(GoToChooseLanguageButton)),
-					},
-				},
-				{
-					tgClient.InlineKeyboardButton{
-						Text:         GetLocalizedText(GoToMenuButton, language),
-						CallbackData: strconv.Itoa(int(GoToMenuButton)),
-					},
-				},
-			},
-		}
-	case ChooseLanguageMessage:
-		ikm = &tgClient.InlineKeyboardMarkup{
-			InlineKeyboard: [][]tgClient.InlineKeyboardButton{
-				{
-					tgClient.InlineKeyboardButton{
-						Text:         "🇺🇸English🇺🇸",
-						CallbackData: "en",
-					},
-				},
-				{
-					tgClient.InlineKeyboardButton{
-						Text:         "🇷🇺Русский🇷🇺",
-						CallbackData: "ru",
-					},
-				},
-				{
-					tgClient.InlineKeyboardButton{
-						Text:         GetLocalizedText(GoToMenuButton, language),
-						CallbackData: strconv.Itoa(int(GoToMenuButton)),
-					},
-				},
-			},
-		}
-	case AboutMessage:
-		ikm = &tgClient.InlineKeyboardMarkup{
-			InlineKeyboard: [][]tgClient.InlineKeyboardButton{
-				{
-					tgClient.InlineKeyboardButton{
-						Text: GetLocalizedText(WriteToAdminButton, language),
-						Url:  "tg://user?id=" + os.Getenv("ADMIN_ID"),
-					},
-				},
-				{
-					tgClient.InlineKeyboardButton{
-						Text:         GetLocalizedText(GoToMenuButton, language),
-						CallbackData: strconv.Itoa(int(GoToMenuButton)),
-					},
-				},
-			},
-		}
-	}
-
-	return
-}
-
-func GetLocalizedImagePath(mType MessageType, language string, imageRegistry *imageRegistry.ImageRegistry, variables ...interface{}) (image string) {
+func GetLocalizedImagePath(mType MessageType, language string, imageRegistry *imageRegistry.ImageRegistry, variables ...string) (image string) {
 	switch mType {
 	case MenuMessage:
 		image = menuImagePath
