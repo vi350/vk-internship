@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/vi350/vk-internship/internal/app/e"
 	"github.com/vi350/vk-internship/internal/app/localization"
+	"github.com/vi350/vk-internship/internal/app/registry/image"
 	userStorage "github.com/vi350/vk-internship/internal/app/storage/user"
 	"io"
 	"io/fs"
@@ -29,9 +30,10 @@ type Client struct {
 	host     string
 	basePath string
 	client   http.Client
+	ir       *image.ImageRegistry
 }
 
-func New(host string, token string) (c *Client, err error) {
+func New(host string, token string, ir *image.ImageRegistry) (c *Client, err error) {
 	defer func() { err = e.WrapIfErr("error getting me: ", err) }()
 
 	c = &Client{
@@ -39,6 +41,7 @@ func New(host string, token string) (c *Client, err error) {
 		host:     host,
 		basePath: newBasePath(token),
 		client:   http.Client{},
+		ir:       ir,
 	}
 
 	values := url.Values{}
@@ -133,6 +136,17 @@ func (c *Client) SendTextMessage(ID int64, text string, replyMarkup ReplyMarkup)
 	return err
 }
 
+func (c *Client) SendImageByUser(userFromRegistry *userStorage.User, mType localization.MessageType) (err error) {
+	defer func() { err = e.WrapIfErr("error sending image message: ", err) }()
+
+	err = c.SendImage(userFromRegistry.ID,
+		localization.GetLocalizedText(mType, userFromRegistry.Language),
+		localization.GetLocalizedInlineKeyboardMarkup(mType, userFromRegistry.Language),
+		localization.GetLocalizedImagePath(mType, userFromRegistry.Language, c.ir))
+
+	return
+}
+
 func (c *Client) SendImage(ID int64, text string, replyMarkup ReplyMarkup, image string) (err error) {
 	defer func() { err = e.WrapIfErr("error sending image message: ", err) }()
 
@@ -168,13 +182,21 @@ func (c *Client) SendImage(ID int64, text string, replyMarkup ReplyMarkup, image
 			return e.WrapIfErr("error closing writer: ", err)
 		}
 
-		_, err = c.doRequest(sendMessageMethod, values, &buf,
+		var data []byte
+		data, err = c.doRequest(sendMessageMethod, values, &buf,
 			map[string][]string{
 				"Content-Type": {writer.FormDataContentType()},
 			})
 		if err != nil {
 			return err
 		}
+
+		var mes Message
+		err = json.Unmarshal(data, &mes)
+		if err != nil {
+			return err
+		}
+		c.ir.Save(image, mes.Photo[len(mes.Photo)-1].FileID)
 
 	} else if errors.Is(err, fs.ErrNotExist) {
 		err = nil

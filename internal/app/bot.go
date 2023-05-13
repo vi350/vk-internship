@@ -8,6 +8,7 @@ import (
 	"github.com/vi350/vk-internship/internal/app/events"
 	"github.com/vi350/vk-internship/internal/app/events/telegram"
 	gameRegistry "github.com/vi350/vk-internship/internal/app/registry/game"
+	imageRegistry "github.com/vi350/vk-internship/internal/app/registry/image"
 	userRegistry "github.com/vi350/vk-internship/internal/app/registry/user"
 	gameStorage "github.com/vi350/vk-internship/internal/app/storage/game"
 	userStorage "github.com/vi350/vk-internship/internal/app/storage/user"
@@ -32,7 +33,10 @@ func New() (*Bot, error) {
 	}
 
 	b := &Bot{}
-	if b.tgcli, err = tgClient.New(os.Getenv("TELEGRAM_HOST"), os.Getenv("TELEGRAM_TOKEN")); err != nil {
+	if b.tgcli, err = tgClient.New(
+		os.Getenv("TELEGRAM_HOST"),
+		os.Getenv("TELEGRAM_TOKEN"),
+		imageRegistry.New()); err != nil {
 		return nil, err
 	}
 	b.userRegistry = userRegistry.New(userStorage.New(pgClient.New()))

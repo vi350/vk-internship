@@ -30,6 +30,7 @@ type Message struct {
 	Date      int64    `json:"date"`
 	Text      string   `json:"text"`
 	Entity    []Entity `json:"entities"`
+	Photo     []Photo  `json:"photo"`
 }
 
 type InlineQuery struct {
@@ -58,6 +59,14 @@ type Entity struct {
 	Type   string `json:"type"`
 	Offset int64  `json:"offset"`
 	Length int64  `json:"length"`
+}
+
+type Photo struct {
+	FileID       string `json:"file_id"`
+	FileUniqueID string `json:"file_unique_id"`
+	Width        int    `json:"width"`
+	Height       int    `json:"height"`
+	FileSize     int    `json:"file_size"`
 }
 
 type ReplyMarkup interface {

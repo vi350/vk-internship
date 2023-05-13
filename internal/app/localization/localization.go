@@ -1,69 +1,115 @@
 package localization
 
-import tgClient "github.com/vi350/vk-internship/internal/app/clients/telegram"
+import (
+	tgClient "github.com/vi350/vk-internship/internal/app/clients/telegram"
+	imageRegistry "github.com/vi350/vk-internship/internal/app/registry/image"
+	"path"
+)
 
 type MessageType int
 
 const (
 	UnknownCommandMessage MessageType = iota
-	StartMessage
+	GoToMenuButton
+	MenuMessage
+	GoToHelpButton
 	HelpMessage
+	GoToSettingsButton
 	SettingsMessage
+	GoToChooseLanguageButton
 	ChooseLanguageMessage
-	GoToMainMenuButton
+	GoToAboutButton
+	AboutMessage
 )
 
-func GetLocalizedText(mType MessageType, language string, variables ...interface{}) string {
+func GetLocalizedText(mType MessageType, language string, variables ...interface{}) (answer string) {
 	// idea: move to db/config?
-	// TODO: link localizedMessages fields to constants?
+	// idea: link localizedMessages fields to constants?
 
 	switch mType {
 	case UnknownCommandMessage:
 		switch language {
 		case "en":
-			return enMessages.unknownCommandMessage
+			answer = enMessages.unknownCommandMessage
 		case "ru":
-			return ruMessages.unknownCommandMessage
+			answer = ruMessages.unknownCommandMessage
 		}
-	case StartMessage:
+	case GoToMenuButton:
 		switch language {
 		case "en":
-			return enMessages.startMessage
+			answer = enMessages.goToMenuButton
 		case "ru":
-			return ruMessages.startMessage
+			answer = ruMessages.goToMenuButton
+
+		}
+	case MenuMessage:
+		switch language {
+		case "en":
+			answer = enMessages.menuMessage
+		case "ru":
+			answer = ruMessages.menuMessage
+		}
+	case GoToHelpButton:
+		switch language {
+		case "en":
+			answer = enMessages.goToHelpButton
+		case "ru":
+			answer = ruMessages.goToHelpButton
 		}
 	case HelpMessage:
 		switch language {
 		case "en":
-			return enMessages.helpMessage
+			answer = enMessages.helpMessage
 		case "ru":
-			return ruMessages.helpMessage
+			answer = ruMessages.helpMessage
+		}
+	case GoToSettingsButton:
+		switch language {
+		case "en":
+			answer = enMessages.goToSettingsButton
+		case "ru":
+			answer = ruMessages.goToSettingsButton
 		}
 	case SettingsMessage:
 		switch language {
 		case "en":
-			return enMessages.settingsMessage
+			answer = enMessages.settingsMessage
 		case "ru":
-			return ruMessages.settingsMessage
+			answer = ruMessages.settingsMessage
+		}
+	case GoToChooseLanguageButton:
+		switch language {
+		case "en":
+			answer = enMessages.goToChooseLanguageButton
+		case "ru":
+			answer = ruMessages.goToChooseLanguageButton
 		}
 	case ChooseLanguageMessage:
 		switch language {
 		case "en":
-			return enMessages.ChooseLanguageMessage
+			answer = enMessages.chooseLanguageMessage
 		case "ru":
-			return ruMessages.ChooseLanguageMessage
+			answer = ruMessages.chooseLanguageMessage
 		}
-	case GoToMainMenuButton:
+	case GoToAboutButton:
 		switch language {
 		case "en":
-			return enMessages.GoToMainMenuButton
+			answer = enMessages.goToAboutButton
 		case "ru":
-			return ruMessages.GoToMainMenuButton
-
+			answer = ruMessages.goToAboutButton
 		}
+	case AboutMessage:
+		switch language {
+		case "en":
+			answer = enMessages.aboutMessage
+		case "ru":
+			answer = ruMessages.aboutMessage
+		}
+	default:
+		answer = "Error: Unknown message type"
 	}
 
-	return "."
+	return
 }
 
 func GetLocalizedInlineKeyboardMarkup(mType MessageType, language string, variables ...interface{}) tgClient.ReplyMarkup {
@@ -71,13 +117,65 @@ func GetLocalizedInlineKeyboardMarkup(mType MessageType, language string, variab
 	case UnknownCommandMessage:
 		return &tgClient.InlineKeyboardMarkup{
 			InlineKeyboard: [][]tgClient.InlineKeyboardButton{
-				[]tgClient.InlineKeyboardButton{tgClient.InlineKeyboardButton{
-					Text:         GetLocalizedText(GoToMainMenuButton, language),
+				{tgClient.InlineKeyboardButton{
+					Text:         GetLocalizedText(GoToMenuButton, language),
 					CallbackData: "main_menu", // TODO: move to callback constants
+				}},
+			},
+		}
+	case MenuMessage:
+		return &tgClient.InlineKeyboardMarkup{
+			InlineKeyboard: [][]tgClient.InlineKeyboardButton{
+				{tgClient.InlineKeyboardButton{
+					Text:         GetLocalizedText(HelpMessage, language),
+					CallbackData: "help",
 				}},
 			},
 		}
 	}
 
 	return nil
+}
+
+func GetLocalizedImagePath(mType MessageType, language string, imageRegistry *imageRegistry.ImageRegistry, variables ...interface{}) (image string) {
+	switch mType {
+	case MenuMessage:
+		switch language {
+		case "en":
+			image = enMessages.menuMessage
+		case "ru":
+			image = ruMessages.menuMessage
+		}
+	case HelpMessage:
+		switch language {
+		case "en":
+			image = enMessages.helpMessage
+		case "ru":
+			image = ruMessages.helpMessage
+		}
+	case SettingsMessage:
+		switch language {
+		case "en":
+			image = enMessages.settingsMessage
+		case "ru":
+			image = ruMessages.settingsMessage
+		}
+	case ChooseLanguageMessage:
+		switch language {
+		case "en":
+			image = enMessages.chooseLanguageMessage
+		case "ru":
+			image = ruMessages.chooseLanguageMessage
+		}
+	case AboutMessage:
+		switch language {
+		case "en":
+			image = enMessages.aboutMessage
+		case "ru":
+			image = ruMessages.aboutMessage
+		}
+	}
+	image = imageRegistry.GetByPath(path.Join(baseImagePath, language, image))
+
+	return
 }
