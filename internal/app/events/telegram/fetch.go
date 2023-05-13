@@ -1,7 +1,7 @@
 package telegram
 
 import (
-	"github.com/vi350/vk-internship/internal/app/clients/telegram"
+	tgClient "github.com/vi350/vk-internship/internal/app/clients/telegram"
 	"github.com/vi350/vk-internship/internal/app/e"
 	"github.com/vi350/vk-internship/internal/app/events"
 )
@@ -9,7 +9,7 @@ import (
 func (ep *EventProcessor) Fetch(limit int) (result []events.Event, err error) {
 	defer func() { err = e.WrapIfErr("error in telegram.Processor.Fetch", err) }()
 
-	updates, err := ep.tgcli.Updates(ep.offset, limit)
+	updates, err := ep.tgClient.Updates(ep.offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (ep *EventProcessor) Fetch(limit int) (result []events.Event, err error) {
 	return res, nil
 }
 
-func event(update telegram.Update) events.Event {
+func event(update tgClient.Update) events.Event {
 	res := events.Event{
 		Type: fetchType(update),
 		Text: fetchText(update),
@@ -40,23 +40,24 @@ func event(update telegram.Update) events.Event {
 			Entities: update.Message.Entity,
 		}
 	} else if update.InlineQuery != nil {
-		res.Meta = MetaInlineQuery{
-			FromID: update.InlineQuery.From.ID,
+		res.Meta = MetaCallbackQuery{
+			From:    update.InlineQuery.From,
+			Message: update.InlineQuery.Message,
 		}
 	}
 	return res
 }
 
-func fetchType(update telegram.Update) events.EventType {
+func fetchType(update tgClient.Update) events.EventType {
 	if update.Message != nil {
 		return events.Message
 	} else if update.InlineQuery != nil {
-		return events.InlineQuery
+		return events.CallbackQuery
 	}
 	return events.Unknown
 }
 
-func fetchText(update telegram.Update) string {
+func fetchText(update tgClient.Update) string {
 	if update.Message != nil {
 		return update.Message.Text
 	} else if update.InlineQuery != nil {

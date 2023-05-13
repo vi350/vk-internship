@@ -12,6 +12,7 @@ type localizedMessages struct {
 	chooseLanguageMessage    string
 	goToAboutButton          string
 	aboutMessage             string
+	writeToAdminButton       string
 }
 
 const (
@@ -35,6 +36,7 @@ var enMessages = localizedMessages{
 	chooseLanguageMessage:    "Choose language",
 	goToAboutButton:          "About",
 	aboutMessage:             "About bot",
+	writeToAdminButton:       "Write to admin",
 }
 
 var ruMessages = localizedMessages{
@@ -48,4 +50,5 @@ var ruMessages = localizedMessages{
 	goToChooseLanguageButton: "Выбрать язык",
 	chooseLanguageMessage:    "Выбери язык",
 	aboutMessage:             "О боте",
+	writeToAdminButton:       "Написать администратору",
 }

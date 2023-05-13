@@ -18,7 +18,7 @@ type EventType int
 const (
 	Unknown EventType = iota
 	Message
-	InlineQuery
+	CallbackQuery
 )
 
 type Event struct {

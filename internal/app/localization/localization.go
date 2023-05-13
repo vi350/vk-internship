@@ -3,7 +3,9 @@ package localization
 import (
 	tgClient "github.com/vi350/vk-internship/internal/app/clients/telegram"
 	imageRegistry "github.com/vi350/vk-internship/internal/app/registry/image"
+	"os"
 	"path"
+	"strconv"
 )
 
 type MessageType int
@@ -20,6 +22,7 @@ const (
 	ChooseLanguageMessage
 	GoToAboutButton
 	AboutMessage
+	WriteToAdminButton
 )
 
 func GetLocalizedText(mType MessageType, language string, variables ...interface{}) (answer string) {
@@ -105,6 +108,13 @@ func GetLocalizedText(mType MessageType, language string, variables ...interface
 		case "ru":
 			answer = ruMessages.aboutMessage
 		}
+	case WriteToAdminButton:
+		switch language {
+		case "en":
+			answer = enMessages.writeToAdminButton
+		case "ru":
+			answer = ruMessages.writeToAdminButton
+		}
 	default:
 		answer = "Error: Unknown message type"
 	}
@@ -112,29 +122,108 @@ func GetLocalizedText(mType MessageType, language string, variables ...interface
 	return
 }
 
-func GetLocalizedInlineKeyboardMarkup(mType MessageType, language string, variables ...interface{}) tgClient.ReplyMarkup {
+func GetLocalizedInlineKeyboardMarkup(mType MessageType, language string, variables ...interface{}) (ikm tgClient.ReplyMarkup) {
 	switch mType {
-	case UnknownCommandMessage:
-		return &tgClient.InlineKeyboardMarkup{
+	case MenuMessage:
+		ikm = &tgClient.InlineKeyboardMarkup{
 			InlineKeyboard: [][]tgClient.InlineKeyboardButton{
-				{tgClient.InlineKeyboardButton{
-					Text:         GetLocalizedText(GoToMenuButton, language),
-					CallbackData: "main_menu", // TODO: move to callback constants
-				}},
+				//{
+				//	tgClient.InlineKeyboardButton{
+				//		Text:         GetLocalizedText(StartGameButton, language),
+				//		CallbackData: "startGame",
+				//	},
+				//},
+				{
+					tgClient.InlineKeyboardButton{
+						Text:         GetLocalizedText(GoToHelpButton, language),
+						CallbackData: strconv.Itoa(int(GoToHelpButton)),
+					},
+				},
+				{
+					tgClient.InlineKeyboardButton{
+						Text:         GetLocalizedText(GoToSettingsButton, language),
+						CallbackData: strconv.Itoa(int(GoToSettingsButton)),
+					},
+				},
+				{
+					tgClient.InlineKeyboardButton{
+						Text:         GetLocalizedText(GoToAboutButton, language),
+						CallbackData: strconv.Itoa(int(GoToAboutButton)),
+					},
+				},
 			},
 		}
-	case MenuMessage:
-		return &tgClient.InlineKeyboardMarkup{
+	case HelpMessage:
+		ikm = &tgClient.InlineKeyboardMarkup{
 			InlineKeyboard: [][]tgClient.InlineKeyboardButton{
-				{tgClient.InlineKeyboardButton{
-					Text:         GetLocalizedText(HelpMessage, language),
-					CallbackData: "help",
-				}},
+				{
+					tgClient.InlineKeyboardButton{
+						Text:         GetLocalizedText(GoToMenuButton, language),
+						CallbackData: strconv.Itoa(int(GoToMenuButton)),
+					},
+				},
+			},
+		}
+	case SettingsMessage:
+		ikm = &tgClient.InlineKeyboardMarkup{
+			InlineKeyboard: [][]tgClient.InlineKeyboardButton{
+				{
+					tgClient.InlineKeyboardButton{
+						Text:         GetLocalizedText(GoToChooseLanguageButton, language),
+						CallbackData: strconv.Itoa(int(GoToChooseLanguageButton)),
+					},
+				},
+				{
+					tgClient.InlineKeyboardButton{
+						Text:         GetLocalizedText(GoToMenuButton, language),
+						CallbackData: strconv.Itoa(int(GoToMenuButton)),
+					},
+				},
+			},
+		}
+	case ChooseLanguageMessage:
+		ikm = &tgClient.InlineKeyboardMarkup{
+			InlineKeyboard: [][]tgClient.InlineKeyboardButton{
+				{
+					tgClient.InlineKeyboardButton{
+						Text:         "🇺🇸English🇺🇸",
+						CallbackData: "en",
+					},
+				},
+				{
+					tgClient.InlineKeyboardButton{
+						Text:         "🇷🇺Русский🇷🇺",
+						CallbackData: "ru",
+					},
+				},
+				{
+					tgClient.InlineKeyboardButton{
+						Text:         GetLocalizedText(GoToMenuButton, language),
+						CallbackData: strconv.Itoa(int(GoToMenuButton)),
+					},
+				},
+			},
+		}
+	case AboutMessage:
+		ikm = &tgClient.InlineKeyboardMarkup{
+			InlineKeyboard: [][]tgClient.InlineKeyboardButton{
+				{
+					tgClient.InlineKeyboardButton{
+						Text: GetLocalizedText(WriteToAdminButton, language),
+						Url:  "tg://user?id=" + os.Getenv("ADMIN_ID"),
+					},
+				},
+				{
+					tgClient.InlineKeyboardButton{
+						Text:         GetLocalizedText(GoToMenuButton, language),
+						CallbackData: strconv.Itoa(int(GoToMenuButton)),
+					},
+				},
 			},
 		}
 	}
 
-	return nil
+	return
 }
 
 func GetLocalizedImagePath(mType MessageType, language string, imageRegistry *imageRegistry.ImageRegistry, variables ...interface{}) (image string) {

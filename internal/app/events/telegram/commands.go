@@ -17,16 +17,13 @@ func (ep *EventProcessor) doCommand(text string, userFromMessage tgClient.User) 
 	switch {
 	case strings.HasPrefix(text, "/start"):
 		if isNew {
-			err = ep.tgcli.SendTextMessageByUser(userFromRegistry, localization.StartMessage)
+			err = ep.tgClient.SendImageByUser(userFromRegistry, localization.ChooseLanguageMessage)
 		} else {
-			err = ep.tgcli.SendTextMessageByUser(userFromRegistry, localization.StartMessage)
+			err = ep.tgClient.SendImageByUser(userFromRegistry, localization.MenuMessage)
 		}
 
-	case strings.HasPrefix(text, "/help"):
-		err = ep.tgcli.SendTextMessageByUser(userFromRegistry, localization.HelpMessage)
-
 	default:
-		err = ep.tgcli.SendTextMessageByUser(userFromRegistry, localization.UnknownCommandMessage)
+		err = ep.tgClient.SendTextMessageByUser(userFromRegistry, localization.UnknownCommandMessage)
 	}
 
 	return

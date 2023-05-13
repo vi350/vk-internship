@@ -34,11 +34,12 @@ type Message struct {
 }
 
 type InlineQuery struct {
-	ID       string `json:"id"`
-	From     User   `json:"from"`
-	Query    string `json:"query"`
-	Offset   string `json:"offset"`
-	ChatType string `json:"chat_type"`
+	ID       string  `json:"id"`
+	From     User    `json:"from"`
+	Message  Message `json:"message"`
+	Query    string  `json:"query"`
+	Offset   string  `json:"offset"`
+	ChatType string  `json:"chat_type"`
 }
 
 type User struct {
@@ -82,4 +83,5 @@ func (i InlineKeyboardMarkup) ReplyMarkup() {}
 type InlineKeyboardButton struct {
 	Text         string `json:"text"`
 	CallbackData string `json:"callback_data"`
+	Url          string `json:"url"`
 }
