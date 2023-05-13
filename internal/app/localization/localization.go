@@ -140,40 +140,15 @@ func GetLocalizedInlineKeyboardMarkup(mType MessageType, language string, variab
 func GetLocalizedImagePath(mType MessageType, language string, imageRegistry *imageRegistry.ImageRegistry, variables ...interface{}) (image string) {
 	switch mType {
 	case MenuMessage:
-		switch language {
-		case "en":
-			image = enMessages.menuMessage
-		case "ru":
-			image = ruMessages.menuMessage
-		}
+		image = menuImagePath
 	case HelpMessage:
-		switch language {
-		case "en":
-			image = enMessages.helpMessage
-		case "ru":
-			image = ruMessages.helpMessage
-		}
+		image = helpImagePath
 	case SettingsMessage:
-		switch language {
-		case "en":
-			image = enMessages.settingsMessage
-		case "ru":
-			image = ruMessages.settingsMessage
-		}
+		image = settingsImagePath
 	case ChooseLanguageMessage:
-		switch language {
-		case "en":
-			image = enMessages.chooseLanguageMessage
-		case "ru":
-			image = ruMessages.chooseLanguageMessage
-		}
+		image = chooseLanguageImagePath
 	case AboutMessage:
-		switch language {
-		case "en":
-			image = enMessages.aboutMessage
-		case "ru":
-			image = ruMessages.aboutMessage
-		}
+		image = aboutImagePath
 	}
 	image = imageRegistry.GetByPath(path.Join(baseImagePath, language, image))
 
