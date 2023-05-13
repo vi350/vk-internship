@@ -9,6 +9,7 @@ import (
 	"github.com/vi350/vk-internship/internal/app/events/telegram"
 	"github.com/vi350/vk-internship/internal/app/storage/game_storage"
 	"github.com/vi350/vk-internship/internal/app/storage/user_storage"
+	gameRegistry "github.com/vi350/vk-internship/internal/registry/game"
 	userRegistry "github.com/vi350/vk-internship/internal/registry/user"
 	"os"
 	"time"
@@ -19,7 +20,7 @@ const batchSize = 100
 type Bot struct {
 	tgcli            *tgClient.Client
 	userRegistry     *userRegistry.UserRegistry
-	gameStorage      *game_storage.GameStorage
+	gameRegistry     *gameRegistry.GameRegistry
 	tgEventProcessor events.EventProcessor
 	consumer         event_consumer.Consumer
 }
@@ -35,9 +36,9 @@ func New() (*Bot, error) {
 		return nil, err
 	}
 	b.userRegistry = userRegistry.New(user_storage.New(pgClient.New()))
-	b.gameStorage = game_storage.New(pgClient.New())
+	b.gameRegistry = gameRegistry.New(game_storage.New(pgClient.New()))
 
-	b.tgEventProcessor = telegram.New(b.tgcli, b.userRegistry, b.gameStorage)
+	b.tgEventProcessor = telegram.New(b.tgcli, b.userRegistry, b.gameRegistry)
 	b.consumer = event_consumer.New(b.tgEventProcessor, b.tgEventProcessor, batchSize)
 
 	return b, nil
@@ -47,7 +48,8 @@ func (b *Bot) Run() (err error) {
 
 	go func() {
 		for {
-			b.userRegistry.RemoveInactiveUsers(10)
+			b.userRegistry.RemoveInactive(10)
+			b.gameRegistry.RemoveInactive(10)
 			time.Sleep(time.Minute * 2)
 		}
 	}()
@@ -55,6 +57,7 @@ func (b *Bot) Run() (err error) {
 	go func() {
 		for {
 			b.userRegistry.Sync()
+			b.gameRegistry.Sync()
 			time.Sleep(time.Minute)
 		}
 	}()

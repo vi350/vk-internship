@@ -2,7 +2,7 @@ package telegram
 
 import (
 	"github.com/vi350/vk-internship/internal/app/clients/telegram"
-	"github.com/vi350/vk-internship/internal/app/storage/game_storage"
+	"github.com/vi350/vk-internship/internal/registry/game"
 	"github.com/vi350/vk-internship/internal/registry/user"
 )
 
@@ -10,7 +10,7 @@ type EventProcessor struct {
 	tgcli        *telegram.Client
 	offset       int64
 	userRegistry *user.UserRegistry
-	gameStorage  *game_storage.GameStorage
+	gameRegistry *game.GameRegistry
 }
 
 type MetaMessage struct {
@@ -21,12 +21,13 @@ type MetaMessage struct {
 
 type MetaInlineQuery struct {
 	FromID int64
+	Query  string
 }
 
-func New(tgcli *telegram.Client, userRegistry *user.UserRegistry, gameStorage *game_storage.GameStorage) *EventProcessor {
+func New(tgcli *telegram.Client, userRegistry *user.UserRegistry, gameRegistry *game.GameRegistry) *EventProcessor {
 	return &EventProcessor{
 		tgcli:        tgcli,
 		userRegistry: userRegistry,
-		gameStorage:  gameStorage,
+		gameRegistry: gameRegistry,
 	}
 }

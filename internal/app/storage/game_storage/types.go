@@ -1,15 +1,13 @@
 package game_storage
 
-import (
-	"github.com/vi350/vk-internship/internal/app/storage/user_storage"
-)
-
 const (
 	Empty = iota
 	WhitePawn
 	WitheKing
 	BlackPawn
 	BlackKing
+	GameStateInProgress
+	GameStateFinished
 )
 
 type Piece struct {
@@ -19,10 +17,11 @@ type Piece struct {
 }
 
 type Game struct {
-	ID          int               `db:"id"`
-	Owner       user_storage.User `db:"owner"`
-	Opponent    user_storage.User `db:"opponent"`
-	WhitePieces []Piece           `db:"white_pieces"`
-	BlackPieces []Piece           `db:"black_pieces"`
-	Notation    string            `db:"notation"`
+	ID          int     `db:"id"`
+	OwnerID     int64   `db:"owner_id"`
+	OpponentID  int64   `db:"opponent_id"`
+	WhitePieces []Piece `db:"white_pieces"`
+	BlackPieces []Piece `db:"black_pieces"`
+	Notation    string  `db:"notation"`
+	State       int     `db:"state"`
 }

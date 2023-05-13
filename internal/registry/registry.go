@@ -1,5 +1,6 @@
 package registry
 
 type Registry interface {
-	Registry()
+	Sync()
+	RemoveInactive(int)
 }

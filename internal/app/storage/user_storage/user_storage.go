@@ -5,6 +5,7 @@ import (
 	"github.com/vi350/vk-internship/internal/app/clients"
 	tgClient "github.com/vi350/vk-internship/internal/app/clients/telegram"
 	"github.com/vi350/vk-internship/internal/app/e"
+	"github.com/vi350/vk-internship/internal/app/storage"
 	"time"
 )
 
@@ -18,30 +19,19 @@ func New(dbClient clients.DBClient) *UserStorage {
 	}
 }
 
-const (
-	saveError           = "error performing user insert"
-	readError           = "error performing user read"
-	updateWithMapError  = "error performing user update with map"
-	beginError          = "error beginning transaction"
-	prepareError        = "error preparing transaction"
-	closeStatementError = "error closing statement"
-	execError           = "error executing transaction"
-	commitError         = "error committing transaction"
-	rollbackError       = "error rolling back transaction"
-)
-
-func (us *UserStorage) Save(user *User) (err error) {
-	defer func() { err = e.WrapIfErr(saveError, err) }()
+func (us *UserStorage) Insert(user *User) (err error) {
+	defer func() { err = e.WrapIfErr(storage.InsertError, err) }()
 
 	query := `INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?)`
 	// TODO: move to ExecContext
 	_, err = us.DBClient.DB().
 		Exec(query, user.ID, user.FirstName, user.Username, user.StartDate, user.Language, user.State, user.Refer)
-	return err
+
+	return
 }
 
-func (us *UserStorage) SaveFromTg(userFromMessage *tgClient.User, text string) (userFromStore *User, err error) {
-	defer func() { err = e.WrapIfErr(saveError, err) }()
+func (us *UserStorage) InsertUsingTgClientUser(userFromMessage *tgClient.User, text string) (userFromStore *User, err error) {
+	defer func() { err = e.WrapIfErr(storage.InsertError, err) }()
 
 	if userFromMessage.LanguageCode == "" {
 		userFromMessage.LanguageCode = "en"
@@ -60,60 +50,61 @@ func (us *UserStorage) SaveFromTg(userFromMessage *tgClient.User, text string) (
 		State:     ChooseLanguage,
 		Refer:     text,
 	}
-	err = us.Save(userFromStore)
+	err = us.Insert(userFromStore)
 
 	return
 }
 
 func (us *UserStorage) Read(id int64) (user *User, err error) {
-	defer func() { err = e.WrapIfErr(readError, err) }()
+	defer func() { err = e.WrapIfErr(storage.ReadError, err) }()
 
-	var u User
+	var u *User
 	query := `SELECT * FROM users WHERE id = ?`
 	err = us.DBClient.DB().
 		QueryRow(query, id).
 		Scan(&u.ID, &u.FirstName, &u.Username, &u.StartDate, &u.Language, &u.State, &u.Refer)
-	return &u, err
+
+	return
 }
 
 func (us *UserStorage) UpdateWithMap(usersToUpdate map[int64]*User) (err error) {
-	defer func() { err = e.WrapIfErr(updateWithMapError, err) }()
+	defer func() { err = e.WrapIfErr(storage.UpdateWithMapError, err) }()
 
 	var tx *sql.Tx
 	if tx, err = us.DBClient.DB().Begin(); err != nil {
-		return e.WrapIfErr(beginError, err)
+		return e.WrapIfErr(storage.BeginError, err)
 	}
 
 	defer func() {
 		if err != nil {
 			if err = tx.Rollback(); err != nil {
-				err = e.WrapIfErr(rollbackError, err)
+				err = e.WrapIfErr(storage.RollbackError, err)
 			}
 			return
 		}
 		err = tx.Commit()
 		if err != nil {
-			err = e.WrapIfErr(commitError, err)
+			err = e.WrapIfErr(storage.CommitError, err)
 		}
 	}()
 
 	query := `UPDATE users SET first_name = ?, username = ?, start_date = ?, language = ?, state = ?, refer = ? WHERE id = ?`
 	statement, err := tx.Prepare(query)
 	if err != nil {
-		return e.WrapIfErr(prepareError, err)
+		return e.WrapIfErr(storage.PrepareError, err)
 	}
 	defer func() {
 		if err = statement.Close(); err != nil {
-			err = e.WrapIfErr(closeStatementError, err)
+			err = e.WrapIfErr(storage.CloseStatementError, err)
 		}
 	}()
 
 	for id, user := range usersToUpdate {
 		_, err = statement.Exec(user.FirstName, user.Username, user.StartDate, user.Language, user.State, user.Refer, id)
 		if err != nil {
-			return e.WrapIfErr(execError, err)
+			return e.WrapIfErr(storage.ExecError, err)
 		}
 	}
 
-	return nil
+	return
 }

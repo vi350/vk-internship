@@ -33,39 +33,7 @@ func New(userStorage *user_storage.UserStorage) *UserRegistry {
 	}
 }
 
-func (ur *UserRegistry) Registry() {}
-
-func (ur *UserRegistry) GetByTgUser(userFromMessage *tgClient.User, text string) (userFromStorage *user_storage.User, isNew bool, err error) {
-	defer func() { err = e.WrapIfErr(getByTgUserError, err) }()
-	isNew = false
-
-	ur.RLock()
-	if u, readOk := ur.users[userFromMessage.ID]; readOk {
-		ur.RUnlock()
-		userFromStorage = u.userFromStorage
-		// TODO: check if it's ok to update lastAccessTime without locking
-		u.lastAccessTime = time.Now()
-		return
-	}
-	ur.RUnlock()
-
-	userFromStorage, err = ur.userStorage.Read(userFromMessage.ID)
-	if errors.Is(err, sql.ErrNoRows) {
-		if userFromStorage, err = ur.userStorage.SaveFromTg(userFromMessage, text); err != nil {
-			return
-		}
-		isNew = true
-	}
-
-	ur.Lock()
-	defer ur.Unlock()
-	ur.users[userFromMessage.ID].userFromStorage = userFromStorage
-	ur.users[userFromMessage.ID].lastAccessTime = time.Now()
-
-	return
-}
-
-func (ur *UserRegistry) RemoveInactiveUsers(minutes int) {
+func (ur *UserRegistry) RemoveInactive(minutes int) {
 	var start time.Time
 	var actualStart time.Time
 	defer func() {
@@ -106,4 +74,34 @@ func (ur *UserRegistry) Sync() {
 	if err := ur.userStorage.UpdateWithMap(usersForStorage); err != nil {
 		log.Printf("error updating users: %v", err)
 	}
+}
+
+func (ur *UserRegistry) GetByTgUser(userFromMessage *tgClient.User, text string) (userFromStorage *user_storage.User, isNew bool, err error) {
+	defer func() { err = e.WrapIfErr(getByTgUserError, err) }()
+	isNew = false
+
+	ur.RLock()
+	if u, readOk := ur.users[userFromMessage.ID]; readOk {
+		userFromStorage = u.userFromStorage
+		// TODO: check if it's ok to update lastAccessTime without locking
+		u.lastAccessTime = time.Now()
+		ur.RUnlock()
+		return
+	}
+	ur.RUnlock()
+
+	userFromStorage, err = ur.userStorage.Read(userFromMessage.ID)
+	if errors.Is(err, sql.ErrNoRows) {
+		if userFromStorage, err = ur.userStorage.InsertUsingTgClientUser(userFromMessage, text); err != nil {
+			return
+		}
+		isNew = true
+	}
+
+	ur.Lock()
+	defer ur.Unlock()
+	ur.users[userFromMessage.ID].userFromStorage = userFromStorage
+	ur.users[userFromMessage.ID].lastAccessTime = time.Now()
+
+	return
 }
