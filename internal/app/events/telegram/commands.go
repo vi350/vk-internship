@@ -17,24 +17,16 @@ func (ep *EventProcessor) doCommand(text string, userFromMessage tgClient.User) 
 	switch {
 	case strings.HasPrefix(text, "/start"):
 		if isNew {
-			err = ep.tgcli.SendTextMessage(userFromMessage.ID,
-				localization.GetLocalizedText(localization.StartMessage, userFromMessage.LanguageCode),
-				localization.GetLocalizedInlineKeyboardMarkup(localization.StartMessage, userFromMessage.LanguageCode))
+			err = ep.tgcli.SendTextMessageByUser(userFromRegistry, localization.StartMessage)
 		} else {
-			err = ep.tgcli.SendTextMessage(userFromMessage.ID,
-				localization.GetLocalizedText(localization.StartMessage, userFromRegistry.Language),
-				localization.GetLocalizedInlineKeyboardMarkup(localization.StartMessage, userFromRegistry.Language))
+			err = ep.tgcli.SendTextMessageByUser(userFromRegistry, localization.StartMessage)
 		}
 
 	case strings.HasPrefix(text, "/help"):
-		err = ep.tgcli.SendTextMessage(userFromMessage.ID,
-			localization.GetLocalizedText(localization.HelpMessage, userFromRegistry.Language),
-			localization.GetLocalizedInlineKeyboardMarkup(localization.HelpMessage, userFromRegistry.Language))
+		err = ep.tgcli.SendTextMessageByUser(userFromRegistry, localization.HelpMessage)
 
 	default:
-		err = ep.tgcli.SendTextMessage(userFromMessage.ID,
-			localization.GetLocalizedText(localization.UnknownCommandMessage, userFromRegistry.Language),
-			localization.GetLocalizedInlineKeyboardMarkup(localization.UnknownCommandMessage, userFromRegistry.Language))
+		err = ep.tgcli.SendTextMessageByUser(userFromRegistry, localization.UnknownCommandMessage)
 	}
 
 	return
