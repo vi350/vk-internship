@@ -3,7 +3,9 @@ package user_storage
 const (
 	MainMenu = iota
 	Settings
-	Gaming
+	ChooseLanguage
+	HisTurn
+	WaitingTurn
 )
 
 type User struct {

@@ -2,10 +2,10 @@ package localization
 
 import tgClient "github.com/vi350/vk-internship/internal/app/clients/telegram"
 
-type messageType int
+type MessageType int
 
 const (
-	UnknownCommandMessage messageType = iota
+	UnknownCommandMessage MessageType = iota
 	StartMessage
 	HelpMessage
 	SettingsMessage
@@ -13,7 +13,7 @@ const (
 	GoToMainMenuButton
 )
 
-func GetLocalizedText(mType messageType, language string, variables ...interface{}) string {
+func GetLocalizedText(mType MessageType, language string, variables ...interface{}) string {
 	// idea: move to db/config?
 	// TODO: link localizedMessages fields to constants?
 
@@ -66,7 +66,7 @@ func GetLocalizedText(mType messageType, language string, variables ...interface
 	return "."
 }
 
-func GetLocalizedInlineKeyboardMarkup(mType messageType, language string, variables ...interface{}) tgClient.ReplyMarkup {
+func GetLocalizedInlineKeyboardMarkup(mType MessageType, language string, variables ...interface{}) tgClient.ReplyMarkup {
 	switch mType {
 	case UnknownCommandMessage:
 		return &tgClient.InlineKeyboardMarkup{
