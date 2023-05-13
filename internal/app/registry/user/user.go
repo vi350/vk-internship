@@ -5,7 +5,7 @@ import (
 	"errors"
 	tgClient "github.com/vi350/vk-internship/internal/app/clients/telegram"
 	"github.com/vi350/vk-internship/internal/app/e"
-	"github.com/vi350/vk-internship/internal/app/storage/user_storage"
+	userStorage "github.com/vi350/vk-internship/internal/app/storage/user"
 	"log"
 	"sync"
 	"time"
@@ -18,15 +18,15 @@ const (
 type UserRegistry struct {
 	sync.RWMutex
 	users       map[int64]*User
-	userStorage *user_storage.UserStorage
+	userStorage *userStorage.UserStorage
 }
 
 type User struct {
-	userFromStorage *user_storage.User
+	userFromStorage *userStorage.User
 	lastAccessTime  time.Time
 }
 
-func New(userStorage *user_storage.UserStorage) *UserRegistry {
+func New(userStorage *userStorage.UserStorage) *UserRegistry {
 	return &UserRegistry{
 		users:       make(map[int64]*User),
 		userStorage: userStorage,
@@ -66,7 +66,7 @@ func (ur *UserRegistry) Sync() {
 	defer ur.RUnlock()
 
 	actualStart = time.Now()
-	usersForStorage := make(map[int64]*user_storage.User)
+	usersForStorage := make(map[int64]*userStorage.User)
 	for id, u := range ur.users {
 		usersForStorage[id] = u.userFromStorage
 	}
@@ -76,7 +76,7 @@ func (ur *UserRegistry) Sync() {
 	}
 }
 
-func (ur *UserRegistry) GetByTgUser(userFromMessage *tgClient.User, text string) (userFromStorage *user_storage.User, isNew bool, err error) {
+func (ur *UserRegistry) GetByTgUser(userFromMessage *tgClient.User, text string) (userFromStorage *userStorage.User, isNew bool, err error) {
 	defer func() { err = e.WrapIfErr(getByTgUserError, err) }()
 	isNew = false
 

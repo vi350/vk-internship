@@ -7,10 +7,10 @@ import (
 	"github.com/vi350/vk-internship/internal/app/consumer/event_consumer"
 	"github.com/vi350/vk-internship/internal/app/events"
 	"github.com/vi350/vk-internship/internal/app/events/telegram"
-	"github.com/vi350/vk-internship/internal/app/storage/game_storage"
-	"github.com/vi350/vk-internship/internal/app/storage/user_storage"
-	gameRegistry "github.com/vi350/vk-internship/internal/registry/game"
-	userRegistry "github.com/vi350/vk-internship/internal/registry/user"
+	gameRegistry "github.com/vi350/vk-internship/internal/app/registry/game"
+	userRegistry "github.com/vi350/vk-internship/internal/app/registry/user"
+	gameStorage "github.com/vi350/vk-internship/internal/app/storage/game"
+	userStorage "github.com/vi350/vk-internship/internal/app/storage/user"
 	"os"
 	"time"
 )
@@ -35,8 +35,8 @@ func New() (*Bot, error) {
 	if b.tgcli, err = tgClient.New(os.Getenv("TELEGRAM_HOST"), os.Getenv("TELEGRAM_TOKEN")); err != nil {
 		return nil, err
 	}
-	b.userRegistry = userRegistry.New(user_storage.New(pgClient.New()))
-	b.gameRegistry = gameRegistry.New(game_storage.New(pgClient.New()))
+	b.userRegistry = userRegistry.New(userStorage.New(pgClient.New()))
+	b.gameRegistry = gameRegistry.New(gameStorage.New(pgClient.New()))
 
 	b.tgEventProcessor = telegram.New(b.tgcli, b.userRegistry, b.gameRegistry)
 	b.consumer = event_consumer.New(b.tgEventProcessor, b.tgEventProcessor, batchSize)

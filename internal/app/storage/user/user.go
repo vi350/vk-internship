@@ -1,4 +1,4 @@
-package user_storage
+package user
 
 import (
 	"database/sql"

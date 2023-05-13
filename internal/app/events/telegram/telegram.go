@@ -2,8 +2,8 @@ package telegram
 
 import (
 	"github.com/vi350/vk-internship/internal/app/clients/telegram"
-	"github.com/vi350/vk-internship/internal/registry/game"
-	"github.com/vi350/vk-internship/internal/registry/user"
+	"github.com/vi350/vk-internship/internal/app/registry/game"
+	"github.com/vi350/vk-internship/internal/app/registry/user"
 )
 
 type EventProcessor struct {

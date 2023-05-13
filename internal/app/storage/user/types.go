@@ -1,4 +1,4 @@
-package user_storage
+package user
 
 const (
 	MainMenu = iota

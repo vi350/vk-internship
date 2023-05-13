@@ -6,7 +6,7 @@ import (
 	"errors"
 	"github.com/vi350/vk-internship/internal/app/e"
 	"github.com/vi350/vk-internship/internal/app/localization"
-	"github.com/vi350/vk-internship/internal/app/storage/user_storage"
+	userStorage "github.com/vi350/vk-internship/internal/app/storage/user"
 	"io"
 	"io/fs"
 	"mime/multipart"
@@ -105,7 +105,7 @@ func (c *Client) doRequest(method string, values url.Values, reqBody *bytes.Buff
 	return respBody, nil
 }
 
-func (c *Client) SendTextMessageByUser(userFromRegistry *user_storage.User, mType localization.MessageType) (err error) {
+func (c *Client) SendTextMessageByUser(userFromRegistry *userStorage.User, mType localization.MessageType) (err error) {
 	defer func() { err = e.WrapIfErr("error sending text message: ", err) }()
 
 	err = c.SendTextMessage(userFromRegistry.ID,

@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/vi350/vk-internship/internal/app/e"
-	"github.com/vi350/vk-internship/internal/app/storage/game_storage"
+	gameStorage "github.com/vi350/vk-internship/internal/app/storage/game"
 	"log"
 	"sync"
 	"time"
@@ -19,15 +19,15 @@ type GameRegistry struct {
 	games       map[int]*Game
 	ownerMap    map[int64]int
 	opponentMap map[int64]int
-	gameStorage *game_storage.GameStorage
+	gameStorage *gameStorage.GameStorage
 }
 
 type Game struct {
-	gameFromStorage *game_storage.Game
+	gameFromStorage *gameStorage.Game
 	lastAccessTime  time.Time
 }
 
-func New(gameStorage *game_storage.GameStorage) *GameRegistry {
+func New(gameStorage *gameStorage.GameStorage) *GameRegistry {
 	return &GameRegistry{
 		games:       make(map[int]*Game),
 		ownerMap:    make(map[int64]int),
@@ -72,7 +72,7 @@ func (gr *GameRegistry) Sync() {
 	defer gr.RUnlock()
 
 	actualStart = time.Now()
-	gamesForStorage := make(map[int]*game_storage.Game)
+	gamesForStorage := make(map[int]*gameStorage.Game)
 	for _, g := range gr.games {
 		gamesForStorage[g.gameFromStorage.ID] = g.gameFromStorage
 	}
@@ -82,7 +82,7 @@ func (gr *GameRegistry) Sync() {
 	}
 }
 
-func (gr *GameRegistry) FindUsersActiveGame(userid int64) (game *game_storage.Game, err error) {
+func (gr *GameRegistry) FindUsersActiveGame(userid int64) (game *gameStorage.Game, err error) {
 	defer func() { err = e.WrapIfErr(findByUserError, err) }()
 
 	gr.RLock()
@@ -118,7 +118,7 @@ func (gr *GameRegistry) FindUsersActiveGame(userid int64) (game *game_storage.Ga
 	return
 }
 
-func (gr *GameRegistry) FindUsersGames(userid int64) (games []*game_storage.Game, err error) {
+func (gr *GameRegistry) FindUsersGames(userid int64) (games []*gameStorage.Game, err error) {
 	// as all games will be asked not so frequently, we can interact with storage without caching
 	games, err = gr.gameStorage.FindUsersGames(userid)
 	return

@@ -1,4 +1,4 @@
-package game_storage
+package game
 
 import (
 	"database/sql"
