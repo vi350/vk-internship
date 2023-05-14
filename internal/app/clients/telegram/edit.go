@@ -64,9 +64,6 @@ func (c *Client) EditMediaMessage(chatID int64, messageID int64, caption string,
 		Media:   "attach://photo",
 		Caption: caption,
 	}
-	var jsonBytes []byte
-	jsonBytes, err = json.Marshal(inputMediaPhoto)
-	values.Add("media", string(jsonBytes))
 	if err = addIfReplyMarkup(&values, replyMarkup); err != nil {
 		return
 	}
@@ -96,6 +93,9 @@ func (c *Client) EditMediaMessage(chatID int64, messageID int64, caption string,
 			return e.WrapIfErr("error closing writer: ", err)
 		}
 
+		var jsonBytes []byte
+		jsonBytes, err = json.Marshal(inputMediaPhoto)
+		values.Add("media", string(jsonBytes))
 		var data []byte
 		if data, err = c.doRequest(editMessageMediaMethod, values, buf,
 			map[string][]string{
@@ -112,7 +112,10 @@ func (c *Client) EditMediaMessage(chatID int64, messageID int64, caption string,
 
 	} else if errors.Is(err, fs.ErrNotExist) {
 		err = nil
-		values.Add("photo", image)
+		inputMediaPhoto.Media = image
+		var jsonBytes []byte
+		jsonBytes, err = json.Marshal(inputMediaPhoto)
+		values.Add("media", string(jsonBytes))
 		_, err = c.doRequest(editMessageMediaMethod, values, nil, nil)
 	} else {
 		return
