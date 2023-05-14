@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"reflect"
 	"strconv"
 )
 
@@ -19,6 +20,7 @@ const (
 	sendPhotoMethod          = "sendPhoto"
 	editMessageCaptionMethod = "editMessageCaption"
 	editMessageMediaMethod   = "editMessageMedia"
+	answerCallbackMethod     = "answerCallbackQuery"
 )
 
 type Client struct {
@@ -83,7 +85,11 @@ func (c *Client) doRequest(method string, values url.Values, reqBody *bytes.Buff
 		Path:   path.Join(c.basePath, method),
 	}
 
-	req, err := http.NewRequest(http.MethodGet, u.String(), reqBody)
+	var b io.Reader = http.NoBody
+	if reqBody != nil && !reflect.ValueOf(reqBody).IsNil() {
+		b = reqBody
+	}
+	req, err := http.NewRequest(http.MethodGet, u.String(), b)
 	if err != nil {
 		return nil, err
 	}

@@ -70,14 +70,14 @@ func GetLocalizedInlineKeyboardMarkup(mType localization.MessageType, language s
 			InlineKeyboard: [][]InlineKeyboardButton{
 				{
 					InlineKeyboardButton{
-						Text:         localization.GetLocalizedText(localization.LanguageButton, "en"),
-						CallbackData: localization.GetLocalizedText(localization.Language, "en"),
+						Text:         localization.GetLocalizedText(localization.LanguageButton, localization.EnglishLanguage),
+						CallbackData: localization.EnglishLanguage,
 					},
 				},
 				{
 					InlineKeyboardButton{
-						Text:         localization.GetLocalizedText(localization.LanguageButton, "ru"),
-						CallbackData: localization.GetLocalizedText(localization.Language, "ru"),
+						Text:         localization.GetLocalizedText(localization.LanguageButton, localization.RussianLanguage),
+						CallbackData: localization.RussianLanguage,
 					},
 				},
 				{

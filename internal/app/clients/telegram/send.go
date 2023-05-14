@@ -6,7 +6,7 @@ import (
 	"errors"
 	"github.com/vi350/vk-internship/internal/app/e"
 	"github.com/vi350/vk-internship/internal/app/localization"
-	userStorage "github.com/vi350/vk-internship/internal/app/storage/user"
+	"github.com/vi350/vk-internship/internal/app/models"
 	"io"
 	"io/fs"
 	"mime/multipart"
@@ -15,7 +15,7 @@ import (
 	"strconv"
 )
 
-func (c *Client) SendTextMessageByUser(userFromRegistry *userStorage.User, mType localization.MessageType) (err error) {
+func (c *Client) SendTextMessageByUser(userFromRegistry *models.User, mType localization.MessageType) (err error) {
 	defer func() { err = e.WrapIfErr("error sending text message", err) }()
 
 	err = c.SendTextMessage(userFromRegistry.ID,
@@ -37,14 +37,10 @@ func (c *Client) SendTextMessage(ID int64, text string, replyMarkup ReplyMarkup)
 	}
 
 	_, err = c.doRequest(sendMessageMethod, values, nil, nil)
-	if err != nil {
-		return err
-	}
-
 	return err
 }
 
-func (c *Client) SendImageByUser(userFromRegistry *userStorage.User, mType localization.MessageType) (err error) {
+func (c *Client) SendImageByUser(userFromRegistry *models.User, mType localization.MessageType) (err error) {
 	defer func() { err = e.WrapIfErr("error sending image message", err) }()
 
 	err = c.SendImage(userFromRegistry.ID,
@@ -68,21 +64,21 @@ func (c *Client) SendImage(ID int64, text string, image string, replyMarkup Repl
 
 	if _, err = os.Stat(image); err == nil {
 		var file *os.File
-		if file, err = os.Open(image); err == nil {
+		if file, err = os.Open(image); err != nil {
 			return e.WrapIfErr("error opening file: ", err)
 		}
 		defer func() { _ = file.Close() }()
 
-		var buf bytes.Buffer
-		writer := multipart.NewWriter(&buf)
+		buf := &bytes.Buffer{}
+		writer := multipart.NewWriter(buf)
 
-		var fileField io.Writer
-		fileField, err = writer.CreateFormFile("file", image)
+		var imagePart io.Writer
+		imagePart, err = writer.CreateFormFile("photo", image)
 		if err != nil {
 			return e.WrapIfErr("Failed to create form field:", err)
 		}
 
-		_, err = io.Copy(fileField, file)
+		_, err = io.Copy(imagePart, file)
 		if err != nil {
 			return e.WrapIfErr("Failed to copy file data:", err)
 		}
@@ -92,18 +88,18 @@ func (c *Client) SendImage(ID int64, text string, image string, replyMarkup Repl
 		}
 
 		var data []byte
-		if data, err = c.doRequest(sendMessageMethod, values, &buf,
+		if data, err = c.doRequest(sendPhotoMethod, values, buf,
 			map[string][]string{
 				"Content-Type": {writer.FormDataContentType()},
 			}); err != nil {
 			return
 		}
 
-		var mes Message
+		var mes MessageResponse
 		if err = json.Unmarshal(data, &mes); err != nil {
 			return
 		}
-		c.ir.Save(image, mes.Photo[len(mes.Photo)-1].FileID)
+		c.ir.Save(image, mes.Result.Photo[len(mes.Result.Photo)-1].FileID)
 
 	} else if errors.Is(err, fs.ErrNotExist) {
 		err = nil

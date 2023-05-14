@@ -18,28 +18,31 @@ type UpdateResponse struct {
 }
 
 type Update struct {
-	UpdateID    int64        `json:"update_id"`
-	Message     *Message     `json:"message"`
-	InlineQuery *InlineQuery `json:"inline_query"`
+	UpdateID      int64          `json:"update_id"`
+	Message       *Message       `json:"message"`
+	СallbackQuery *СallbackQuery `json:"callback_query"`
+}
+
+type MessageResponse struct {
+	Ok     bool    `json:"ok"`
+	Result Message `json:"result"`
 }
 
 type Message struct {
-	MessageID int64    `json:"message_id"`
-	From      User     `json:"from"`
-	Chat      Chat     `json:"chat"`
-	Date      int64    `json:"date"`
-	Text      string   `json:"text"`
-	Entity    []Entity `json:"entities"`
-	Photo     []Photo  `json:"photo"`
+	MessageID int64           `json:"message_id"`
+	From      User            `json:"from,omitempty"`
+	Chat      Chat            `json:"chat"`
+	Date      int64           `json:"date"`
+	Text      string          `json:"text,omitempty"`
+	Entity    []MessageEntity `json:"entities,omitempty"`
+	Photo     []Photo         `json:"photo,omitempty"`
 }
 
-type InlineQuery struct {
-	ID       string  `json:"id"`
-	From     User    `json:"from"`
-	Message  Message `json:"message"`
-	Query    string  `json:"query"`
-	Offset   string  `json:"offset"`
-	ChatType string  `json:"chat_type"`
+type СallbackQuery struct {
+	ID      string  `json:"id"`
+	From    User    `json:"from"`
+	Message Message `json:"message"`
+	Data    string  `json:"data"`
 }
 
 type User struct {
@@ -56,7 +59,7 @@ type Chat struct {
 	Username string `json:"username"`
 }
 
-type Entity struct {
+type MessageEntity struct {
 	Type   string `json:"type"`
 	Offset int64  `json:"offset"`
 	Length int64  `json:"length"`

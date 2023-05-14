@@ -43,7 +43,7 @@ func (c Consumer) Start() error {
 // TODO: add wait group
 func (c Consumer) handleEvents(handlingEvents []events.Event) error {
 	for _, event := range handlingEvents {
-		log.Printf("handling event: %v\n", event)
+		log.Printf("handling event: %v, %v\n", event.Type, event.Text)
 		if err := c.processor.Process(event); err != nil {
 			return e.WrapIfErr("failed to process event: ", err)
 			// continue (if other "if" statements used)
