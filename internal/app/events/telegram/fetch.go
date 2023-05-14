@@ -39,10 +39,11 @@ func event(update tgClient.Update) events.Event {
 			ChatID:   update.Message.Chat.ID,
 			Entities: update.Message.Entity,
 		}
-	} else if update.InlineQuery != nil {
+	} else if update.СallbackQuery != nil {
 		res.Meta = MetaCallbackQuery{
-			From:    update.InlineQuery.From,
-			Message: update.InlineQuery.Message,
+			ID:      update.СallbackQuery.ID,
+			From:    update.СallbackQuery.From,
+			Message: update.СallbackQuery.Message,
 		}
 	}
 	return res
@@ -51,7 +52,7 @@ func event(update tgClient.Update) events.Event {
 func fetchType(update tgClient.Update) events.EventType {
 	if update.Message != nil {
 		return events.Message
-	} else if update.InlineQuery != nil {
+	} else if update.СallbackQuery != nil {
 		return events.CallbackQuery
 	}
 	return events.Unknown
@@ -60,8 +61,8 @@ func fetchType(update tgClient.Update) events.EventType {
 func fetchText(update tgClient.Update) string {
 	if update.Message != nil {
 		return update.Message.Text
-	} else if update.InlineQuery != nil {
-		return update.InlineQuery.Query
+	} else if update.СallbackQuery != nil {
+		return update.СallbackQuery.Data
 	}
 	return ""
 }

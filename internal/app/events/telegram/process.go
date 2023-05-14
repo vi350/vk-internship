@@ -30,12 +30,12 @@ func (ep *EventProcessor) processMessage(event events.Event) (err error) {
 			}
 		}
 		if isCommand {
-			if err = ep.doCommand(event.Text, meta.From); err != nil {
-				return err
+			if err = ep.doCommand(event.Text, &meta.From); err != nil {
+				return
 			}
 		}
 	}
-	return nil
+	return
 }
 
 func (ep *EventProcessor) processCallbackQuery(event events.Event) (err error) {
@@ -44,8 +44,10 @@ func (ep *EventProcessor) processCallbackQuery(event events.Event) (err error) {
 		return e.WrapIfErr("unknown meta type", err)
 	}
 
-	err = ep.doCallbackQuery(event.Text, meta.From, meta.Message)
-	return nil
+	if err = ep.doCallbackQuery(meta.ID, event.Text, &meta.From, &meta.Message); err != nil {
+		return
+	}
+	return
 }
 
 func metaMessage(event events.Event) (meta MetaMessage, err error) {

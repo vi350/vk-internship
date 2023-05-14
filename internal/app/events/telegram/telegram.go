@@ -16,10 +16,11 @@ type EventProcessor struct {
 type MetaMessage struct {
 	From     tgClient.User
 	ChatID   int64
-	Entities []tgClient.Entity
+	Entities []tgClient.MessageEntity
 }
 
 type MetaCallbackQuery struct {
+	ID      string
 	From    tgClient.User
 	Message tgClient.Message
 }
