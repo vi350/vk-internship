@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/vi350/vk-internship/internal/app/e"
+	"github.com/vi350/vk-internship/internal/app/models"
 	gameStorage "github.com/vi350/vk-internship/internal/app/storage/game"
 	"log"
 	"sync"
@@ -16,20 +17,15 @@ const (
 
 type GameRegistry struct {
 	sync.RWMutex
-	games       map[int]*Game
+	games       map[int]*models.Game
 	ownerMap    map[int64]int
 	opponentMap map[int64]int
 	gameStorage *gameStorage.GameStorage
 }
 
-type Game struct {
-	gameFromStorage *gameStorage.Game
-	lastAccessTime  time.Time
-}
-
 func New(gameStorage *gameStorage.GameStorage) *GameRegistry {
 	return &GameRegistry{
-		games:       make(map[int]*Game),
+		games:       make(map[int]*models.Game),
 		ownerMap:    make(map[int64]int),
 		opponentMap: make(map[int64]int),
 		gameStorage: gameStorage,
@@ -51,9 +47,9 @@ func (gr *GameRegistry) RemoveInactive(minutes int) {
 	actualStart = time.Now()
 
 	for id, g := range gr.games {
-		if time.Since(g.lastAccessTime).Minutes() > float64(minutes) {
-			delete(gr.ownerMap, g.gameFromStorage.OwnerID)
-			delete(gr.opponentMap, g.gameFromStorage.OpponentID)
+		if time.Since(g.LastAccessTime).Minutes() > float64(minutes) {
+			delete(gr.ownerMap, g.OwnerID)
+			delete(gr.opponentMap, g.OpponentID)
 			delete(gr.games, id)
 		}
 	}
@@ -72,9 +68,9 @@ func (gr *GameRegistry) Sync() {
 	defer gr.RUnlock()
 
 	actualStart = time.Now()
-	gamesForStorage := make(map[int]*gameStorage.Game)
+	gamesForStorage := make(map[int]*models.Game)
 	for _, g := range gr.games {
-		gamesForStorage[g.gameFromStorage.ID] = g.gameFromStorage
+		gamesForStorage[g.ID] = g
 	}
 
 	if err := gr.gameStorage.UpdateWithMap(gamesForStorage); err != nil {
@@ -82,19 +78,19 @@ func (gr *GameRegistry) Sync() {
 	}
 }
 
-func (gr *GameRegistry) FindUsersActiveGame(userid int64) (game *gameStorage.Game, err error) {
+func (gr *GameRegistry) FindUsersActiveGame(userid int64) (game *models.Game, err error) {
 	defer func() { err = e.WrapIfErr(findByUserError, err) }()
 
 	gr.RLock()
 	if gameID, readOk := gr.ownerMap[userid]; readOk {
-		game = gr.games[gameID].gameFromStorage
-		gr.games[gameID].lastAccessTime = time.Now()
+		game = gr.games[gameID]
+		gr.games[gameID].LastAccessTime = time.Now()
 		gr.RUnlock()
 		return
 	}
 	if gameID, readOk := gr.opponentMap[userid]; readOk {
-		game = gr.games[gameID].gameFromStorage
-		gr.games[gameID].lastAccessTime = time.Now()
+		game = gr.games[gameID]
+		gr.games[gameID].LastAccessTime = time.Now()
 		gr.RUnlock()
 		return
 	}
@@ -108,17 +104,14 @@ func (gr *GameRegistry) FindUsersActiveGame(userid int64) (game *gameStorage.Gam
 		gr.Lock()
 		defer gr.Unlock()
 
-		gr.games[game.ID] = &Game{
-			gameFromStorage: game,
-			lastAccessTime:  time.Now(),
-		}
+		gr.games[game.ID] = game
 		gr.ownerMap[game.OwnerID] = game.ID
 		gr.opponentMap[game.OpponentID] = game.ID
 	}
 	return
 }
 
-func (gr *GameRegistry) FindUsersGames(userid int64) (games []*gameStorage.Game, err error) {
+func (gr *GameRegistry) FindUsersGames(userid int64) (games []*models.Game, err error) {
 	// as all games will be asked not so frequently, we can interact with storage without caching
 	games, err = gr.gameStorage.FindUsersGames(userid)
 	return

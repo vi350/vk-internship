@@ -5,6 +5,7 @@ import (
 	"github.com/vi350/vk-internship/internal/app/clients"
 	tgClient "github.com/vi350/vk-internship/internal/app/clients/telegram"
 	"github.com/vi350/vk-internship/internal/app/e"
+	"github.com/vi350/vk-internship/internal/app/models"
 	"github.com/vi350/vk-internship/internal/app/storage"
 	"time"
 )
@@ -19,10 +20,12 @@ func New(dbClient clients.DBClient) *UserStorage {
 	}
 }
 
-func (us *UserStorage) Insert(user *User) (err error) {
+func (us *UserStorage) Storage() {}
+
+func (us *UserStorage) Insert(user *models.User) (err error) {
 	defer func() { err = e.WrapIfErr(storage.InsertError, err) }()
 
-	query := `INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO users VALUES ($1, $2, $3, $4, $5, $6, $7);`
 	// TODO: move to ExecContext
 	_, err = us.DBClient.DB().
 		Exec(query, user.ID, user.FirstName, user.Username, user.StartDate, user.Language, user.State, user.Refer)
@@ -30,7 +33,7 @@ func (us *UserStorage) Insert(user *User) (err error) {
 	return
 }
 
-func (us *UserStorage) InsertUsingTgClientUser(userFromMessage *tgClient.User, text string) (userFromStore *User, err error) {
+func (us *UserStorage) InsertUsingTgClientUser(userFromMessage *tgClient.User, text string) (userFromStore *models.User, err error) {
 	defer func() { err = e.WrapIfErr(storage.InsertError, err) }()
 
 	if userFromMessage.LanguageCode == "" {
@@ -41,13 +44,13 @@ func (us *UserStorage) InsertUsingTgClientUser(userFromMessage *tgClient.User, t
 	} else {
 		text = ""
 	}
-	userFromStore = &User{
+	userFromStore = &models.User{
 		ID:        userFromMessage.ID,
 		FirstName: userFromMessage.FirstName,
 		Username:  userFromMessage.Username,
 		StartDate: time.Now().Unix(),
 		Language:  userFromMessage.LanguageCode,
-		State:     ChooseLanguage,
+		State:     models.ChooseLanguage,
 		Refer:     text,
 	}
 	err = us.Insert(userFromStore)
@@ -55,19 +58,20 @@ func (us *UserStorage) InsertUsingTgClientUser(userFromMessage *tgClient.User, t
 	return
 }
 
-func (us *UserStorage) Read(id int64) (user *User, err error) {
+func (us *UserStorage) Read(id int64) (user *models.User, err error) {
 	defer func() { err = e.WrapIfErr(storage.ReadError, err) }()
 
-	var u *User
-	query := `SELECT * FROM users WHERE id = ?`
+	var u models.User
+	query := `SELECT * FROM users WHERE id = $1`
 	err = us.DBClient.DB().
 		QueryRow(query, id).
 		Scan(&u.ID, &u.FirstName, &u.Username, &u.StartDate, &u.Language, &u.State, &u.Refer)
+	user = &u
 
 	return
 }
 
-func (us *UserStorage) UpdateWithMap(usersToUpdate map[int64]*User) (err error) {
+func (us *UserStorage) UpdateWithMap(usersToUpdate map[int64]*models.User) (err error) {
 	defer func() { err = e.WrapIfErr(storage.UpdateWithMapError, err) }()
 
 	var tx *sql.Tx
@@ -88,7 +92,7 @@ func (us *UserStorage) UpdateWithMap(usersToUpdate map[int64]*User) (err error) 
 		}
 	}()
 
-	query := `UPDATE users SET first_name = ?, username = ?, start_date = ?, language = ?, state = ?, refer = ? WHERE id = ?`
+	query := `UPDATE users SET first_name = $1, username = $2, start_date = $3, language = $4, state = $5, refer = $6 WHERE id = $7;`
 	statement, err := tx.Prepare(query)
 	if err != nil {
 		return e.WrapIfErr(storage.PrepareError, err)

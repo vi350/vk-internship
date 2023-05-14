@@ -22,7 +22,12 @@ const (
 	WriteToTheCreatorButton
 	StartGameButton
 	LanguageButton
-	Language
+	LanguageSet
+)
+
+const (
+	EnglishLanguage = "en"
+	RussianLanguage = "ru"
 )
 
 func GetLocalizedText(mType MessageType, language string, variables ...string) (answer string) {
@@ -32,109 +37,109 @@ func GetLocalizedText(mType MessageType, language string, variables ...string) (
 	switch mType {
 	case UnknownCommandMessage:
 		switch language {
-		case enMessages.language:
+		case EnglishLanguage:
 			answer = enMessages.unknownCommandMessage
-		case ruMessages.language:
+		case RussianLanguage:
 			answer = ruMessages.unknownCommandMessage
 		}
 	case GoToMenuButton:
 		switch language {
-		case enMessages.language:
+		case EnglishLanguage:
 			answer = enMessages.goToMenuButton
-		case ruMessages.language:
+		case RussianLanguage:
 			answer = ruMessages.goToMenuButton
 
 		}
 	case MenuMessage:
 		switch language {
-		case enMessages.language:
+		case EnglishLanguage:
 			answer = enMessages.menuMessage
-		case ruMessages.language:
+		case RussianLanguage:
 			answer = ruMessages.menuMessage
 		}
 	case GoToHelpButton:
 		switch language {
-		case enMessages.language:
+		case EnglishLanguage:
 			answer = enMessages.goToHelpButton
-		case ruMessages.language:
+		case RussianLanguage:
 			answer = ruMessages.goToHelpButton
 		}
 	case HelpMessage:
 		switch language {
-		case enMessages.language:
+		case EnglishLanguage:
 			answer = enMessages.helpMessage
-		case ruMessages.language:
+		case RussianLanguage:
 			answer = ruMessages.helpMessage
 		}
 	case GoToSettingsButton:
 		switch language {
-		case enMessages.language:
+		case EnglishLanguage:
 			answer = enMessages.goToSettingsButton
-		case ruMessages.language:
+		case RussianLanguage:
 			answer = ruMessages.goToSettingsButton
 		}
 	case SettingsMessage:
 		switch language {
-		case enMessages.language:
+		case EnglishLanguage:
 			answer = enMessages.settingsMessage
-		case ruMessages.language:
+		case RussianLanguage:
 			answer = ruMessages.settingsMessage
 		}
 	case GoToChooseLanguageButton:
 		switch language {
-		case enMessages.language:
+		case EnglishLanguage:
 			answer = enMessages.goToChooseLanguageButton
-		case ruMessages.language:
+		case RussianLanguage:
 			answer = ruMessages.goToChooseLanguageButton
 		}
 	case ChooseLanguageMessage:
 		switch language {
-		case enMessages.language:
+		case EnglishLanguage:
 			answer = enMessages.chooseLanguageMessage
-		case ruMessages.language:
+		case RussianLanguage:
 			answer = ruMessages.chooseLanguageMessage
 		}
 	case GoToAboutButton:
 		switch language {
-		case enMessages.language:
+		case EnglishLanguage:
 			answer = enMessages.goToAboutButton
-		case ruMessages.language:
+		case RussianLanguage:
 			answer = ruMessages.goToAboutButton
 		}
 	case AboutMessage:
 		switch language {
-		case enMessages.language:
+		case EnglishLanguage:
 			answer = enMessages.aboutMessage
-		case ruMessages.language:
+		case RussianLanguage:
 			answer = ruMessages.aboutMessage
 		}
 	case WriteToTheCreatorButton:
 		switch language {
-		case enMessages.language:
+		case EnglishLanguage:
 			answer = enMessages.writeToTheCreatorButton
-		case ruMessages.language:
+		case RussianLanguage:
 			answer = ruMessages.writeToTheCreatorButton
 		}
 	case StartGameButton:
 		switch language {
-		case enMessages.language:
+		case EnglishLanguage:
 			answer = enMessages.startGameButton
-		case ruMessages.language:
+		case RussianLanguage:
 			answer = ruMessages.startGameButton
 		}
 	case LanguageButton:
 		switch language {
-		case enMessages.language:
+		case EnglishLanguage:
 			answer = enMessages.languageButton
-		case ruMessages.language:
+		case RussianLanguage:
 			answer = ruMessages.languageButton
 		}
-	case Language:
+	case LanguageSet:
 		switch language {
-		case enMessages.language:
-			answer = enMessages.language
-		case ruMessages.language:
-			answer = ruMessages.language
+		case EnglishLanguage:
+			answer = enMessages.languageSet
+		case RussianLanguage:
+			answer = ruMessages.languageSet
 		}
 	default:
 		answer = "Error: Unknown message type"

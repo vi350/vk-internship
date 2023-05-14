@@ -5,6 +5,7 @@ import (
 	"errors"
 	tgClient "github.com/vi350/vk-internship/internal/app/clients/telegram"
 	"github.com/vi350/vk-internship/internal/app/e"
+	"github.com/vi350/vk-internship/internal/app/models"
 	userStorage "github.com/vi350/vk-internship/internal/app/storage/user"
 	"log"
 	"sync"
@@ -17,18 +18,13 @@ const (
 
 type UserRegistry struct {
 	sync.RWMutex
-	users       map[int64]*User
+	users       map[int64]*models.User
 	userStorage *userStorage.UserStorage
-}
-
-type User struct {
-	userFromStorage *userStorage.User
-	lastAccessTime  time.Time
 }
 
 func New(userStorage *userStorage.UserStorage) *UserRegistry {
 	return &UserRegistry{
-		users:       make(map[int64]*User),
+		users:       make(map[int64]*models.User),
 		userStorage: userStorage,
 	}
 }
@@ -47,7 +43,7 @@ func (ur *UserRegistry) RemoveInactive(minutes int) {
 
 	actualStart = time.Now()
 	for id, u := range ur.users {
-		if time.Since(u.lastAccessTime).Minutes() > float64(minutes) {
+		if time.Since(u.LastAccessTime).Minutes() > float64(minutes) {
 			delete(ur.users, id)
 		}
 	}
@@ -66,25 +62,19 @@ func (ur *UserRegistry) Sync() {
 	defer ur.RUnlock()
 
 	actualStart = time.Now()
-	usersForStorage := make(map[int64]*userStorage.User)
-	for id, u := range ur.users {
-		usersForStorage[id] = u.userFromStorage
-	}
-
-	if err := ur.userStorage.UpdateWithMap(usersForStorage); err != nil {
+	if err := ur.userStorage.UpdateWithMap(ur.users); err != nil {
 		log.Printf("error updating users: %v", err)
 	}
 }
 
-func (ur *UserRegistry) GetByTgUser(userFromMessage *tgClient.User, text string) (userFromStorage *userStorage.User, isNew bool, err error) {
+func (ur *UserRegistry) GetByTgUser(userFromMessage *tgClient.User, text string) (userFromStorage *models.User, isNew bool, err error) {
 	defer func() { err = e.WrapIfErr(getByTgUserError, err) }()
 	isNew = false
 
 	ur.RLock()
-	if u, readOk := ur.users[userFromMessage.ID]; readOk {
-		userFromStorage = u.userFromStorage
-		// TODO: check if it's ok to update lastAccessTime without locking
-		u.lastAccessTime = time.Now()
+	var readOk bool
+	if userFromStorage, readOk = ur.users[userFromMessage.ID]; readOk {
+		userFromStorage.LastAccessTime = time.Now()
 		ur.RUnlock()
 		return
 	}
@@ -96,12 +86,14 @@ func (ur *UserRegistry) GetByTgUser(userFromMessage *tgClient.User, text string)
 			return
 		}
 		isNew = true
+	} else if err != nil {
+		return
 	}
 
 	ur.Lock()
 	defer ur.Unlock()
-	ur.users[userFromMessage.ID].userFromStorage = userFromStorage
-	ur.users[userFromMessage.ID].lastAccessTime = time.Now()
+	ur.users[userFromMessage.ID] = userFromStorage
+	ur.users[userFromMessage.ID].LastAccessTime = time.Now()
 
 	return
 }

@@ -1,7 +1,6 @@
 package localization
 
 type localizedMessages struct {
-	language                 string
 	unknownCommandMessage    string
 	goToMenuButton           string
 	menuMessage              string
@@ -16,6 +15,7 @@ type localizedMessages struct {
 	writeToTheCreatorButton  string
 	startGameButton          string
 	languageButton           string
+	languageSet              string
 }
 
 const (
@@ -28,7 +28,6 @@ const (
 )
 
 var enMessages = localizedMessages{
-	language:                 "en",
 	unknownCommandMessage:    "Unknown command. Enter /start to get to menu",
 	goToMenuButton:           "🏁Menu",
 	menuMessage:              "Hi! This is a bot for checkers game.\nDeveloping is in progress.\nStay tuned!",
@@ -39,14 +38,14 @@ var enMessages = localizedMessages{
 	goToChooseLanguageButton: "🌍Choose language",
 	chooseLanguageMessage:    "Choose language",
 	goToAboutButton:          "🔎About",
-	aboutMessage:             "About bot",
+	aboutMessage:             "This bot was created during VK team selection",
 	writeToTheCreatorButton:  "Write to the creator",
 	startGameButton:          "♟️Start game",
 	languageButton:           "🇺🇸English",
+	languageSet:              "English language set",
 }
 
 var ruMessages = localizedMessages{
-	language:                 "ru",
 	unknownCommandMessage:    "Неизвестная команда. Введите /start чтобы перейти в меню",
 	goToMenuButton:           "🏁Меню",
 	menuMessage:              "Привет! Это бот для игры в шашки.\nРазработка в процессе.\nСледите за обновлениями!",
@@ -57,8 +56,9 @@ var ruMessages = localizedMessages{
 	goToChooseLanguageButton: "🌍Выбрать язык",
 	chooseLanguageMessage:    "Выбери язык",
 	goToAboutButton:          "🔎О боте",
-	aboutMessage:             "Это бот, разраб",
+	aboutMessage:             "Это бот, разработанный в рамках отбора в команду ВК",
 	writeToTheCreatorButton:  "Написать создателю",
 	startGameButton:          "♟️Начать игру",
 	languageButton:           "🇷🇺Русский",
+	languageSet:              "Установлен русский язык",
 }

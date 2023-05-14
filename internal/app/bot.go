@@ -54,7 +54,7 @@ func (b *Bot) Run() (err error) {
 		for {
 			b.userRegistry.RemoveInactive(10)
 			b.gameRegistry.RemoveInactive(10)
-			time.Sleep(time.Minute * 2)
+			time.Sleep(time.Second * 90)
 		}
 	}()
 
@@ -62,7 +62,7 @@ func (b *Bot) Run() (err error) {
 		for {
 			b.userRegistry.Sync()
 			b.gameRegistry.Sync()
-			time.Sleep(time.Minute)
+			time.Sleep(time.Second * 30)
 		}
 	}()
 

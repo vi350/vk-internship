@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/vi350/vk-internship/internal/app/clients"
 	"github.com/vi350/vk-internship/internal/app/e"
+	"github.com/vi350/vk-internship/internal/app/models"
 	"github.com/vi350/vk-internship/internal/app/storage"
 )
 
@@ -18,7 +19,9 @@ func New(dbClient clients.DBClient) *GameStorage {
 	}
 }
 
-func (gs *GameStorage) Insert(game *Game) (err error) {
+func (gs *GameStorage) Storage() {}
+
+func (gs *GameStorage) Insert(game *models.Game) (err error) {
 	defer func() { err = e.WrapIfErr(storage.InsertError, err) }()
 
 	whp, err := json.Marshal(game.WhitePieces)
@@ -30,51 +33,55 @@ func (gs *GameStorage) Insert(game *Game) (err error) {
 		return err
 	}
 
-	query := `INSERT INTO games VALUES (?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO games VALUES ($1, $2, $3, $4, $5, $6);`
 	_, err = gs.DBClient.DB().
 		Exec(query, game.ID, game.OwnerID, game.OpponentID, string(whp), string(blp), game.Notation)
 
 	return
 }
 
-func (gs *GameStorage) Read(id int) (game *Game, err error) {
+func (gs *GameStorage) Read(id int) (game *models.Game, err error) {
 	defer func() { err = e.WrapIfErr(storage.ReadError, err) }()
 
-	query := `SELECT * FROM games WHERE id = ?`
+	var g models.Game
+	query := `SELECT * FROM games WHERE id = $1;`
 	err = gs.DBClient.DB().
 		QueryRow(query, id).
-		Scan(&game.ID, &game.OwnerID, &game.OpponentID, &game.WhitePieces, &game.BlackPieces, &game.Notation)
+		Scan(&g.ID, &g.OwnerID, &g.OpponentID, &g.WhitePieces, &g.BlackPieces, &g.Notation)
+	game = &g
 
 	return
 }
 
-func (gs *GameStorage) FindUsersActiveGame(userid int64) (game *Game, err error) {
+func (gs *GameStorage) FindUsersActiveGame(userid int64) (game *models.Game, err error) {
 	defer func() { err = e.WrapIfErr(storage.FindError, err) }()
 
-	query := `SELECT * FROM games WHERE (owner_id = ? OR opponent_id = ?) AND state = ?`
+	var g models.Game
+	query := `SELECT * FROM games WHERE (owner_id = $1 OR opponent_id = $1) AND state = $2;`
 	err = gs.DBClient.DB().
-		QueryRow(query, userid, userid, GameStateInProgress).
-		Scan(&game.ID, &game.OwnerID, &game.OpponentID, &game.WhitePieces, &game.BlackPieces, &game.Notation)
+		QueryRow(query, userid, models.GameStateInProgress).
+		Scan(&g.ID, &g.OwnerID, &g.OpponentID, &g.WhitePieces, &g.BlackPieces, &g.Notation)
+	game = &g
 
 	return
 }
 
-func (gs *GameStorage) FindUsersGames(userid int64) (games []*Game, err error) {
+func (gs *GameStorage) FindUsersGames(userid int64) (games []*models.Game, err error) {
 	defer func() { err = e.WrapIfErr(storage.FindError, err) }()
 
-	query := `SELECT * FROM games WHERE owner_id = ? OR opponent_id = ?`
+	query := `SELECT * FROM games WHERE owner_id = $1 OR opponent_id = $2;`
 	rows, err := gs.DBClient.DB().
-		Query(query, userid, userid)
+		Query(query, userid)
 	for rows.Next() {
-		var game *Game
+		var game models.Game
 		err = rows.Scan(&game.ID, &game.OwnerID, &game.OpponentID, &game.WhitePieces, &game.BlackPieces, &game.Notation, &game.State)
-		games = append(games, game)
+		games = append(games, &game)
 	}
 
 	return
 }
 
-func (gs *GameStorage) UpdateWithMap(gamesToUpdate map[int]*Game) (err error) {
+func (gs *GameStorage) UpdateWithMap(gamesToUpdate map[int]*models.Game) (err error) {
 	defer func() { err = e.WrapIfErr(storage.UpdateWithMapError, err) }()
 
 	var tx *sql.Tx
@@ -95,7 +102,7 @@ func (gs *GameStorage) UpdateWithMap(gamesToUpdate map[int]*Game) (err error) {
 		}
 	}()
 
-	query := `UPDATE games SET owner_id = ?, opponent_id = ?, white_pieces = ?, black_pieces = ?, notation = ?, state = ? WHERE id = ?`
+	query := `UPDATE games SET owner_id = $1, opponent_id = $2, white_pieces = $3, black_pieces = $4, notation = $5, state = $6 WHERE id = $7;`
 	statement, err := tx.Prepare(query)
 	if err != nil {
 		return e.WrapIfErr(storage.PrepareError, err)
