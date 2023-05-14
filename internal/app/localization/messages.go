@@ -19,7 +19,7 @@ type localizedMessages struct {
 }
 
 const (
-	baseImagePath           = "./media/images"
+	baseImagePath           = "./res/images"
 	menuImagePath           = "menu.png"
 	helpImagePath           = "help.png"
 	settingsImagePath       = "settings.png"

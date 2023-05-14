@@ -6,6 +6,14 @@ volumes:
 # untar backup: docker run --rm -v pgdata:/dbdata -v $(pwd):/backup alpine bash -c "cd /dbdata && tar xvf /backup/backup.tar --strip 1"
 
 services:
+  vk-internship-bot:
+    container_name: vk-internship-bot
+    build:
+      context: .
+      dockerfile: configs/Dockerfile
+      target: runner
+
+
   vk-internship-postgres:
     container_name: vk-internship-postgres
     image: postgres:alpine

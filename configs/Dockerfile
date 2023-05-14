@@ -1,0 +1,23 @@
+# Builder
+FROM golang:1.20-alpine AS builder
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+
+# Build
+RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o binaryapp .
+
+# Runner
+# Stage 2 - Run stage
+FROM alpine AS runner
+
+ENV INSIDE_A_DOCKER Yes
+
+COPY .env .env
+COPY res/ res/
+COPY --from=builder /app/binaryapp .
+
+CMD ["./binaryapp"]

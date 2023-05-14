@@ -32,10 +32,10 @@ func New(userStorage *userStorage.UserStorage) *UserRegistry {
 func (ur *UserRegistry) RemoveInactive(minutes int) {
 	var start time.Time
 	var actualStart time.Time
+	var counter int = 0
 	defer func() {
-		log.Printf("removed inactive users; aquiring lock took %v, removing took %v", actualStart.Sub(start), time.Since(actualStart))
+		log.Printf("removed %v inactive users; aquiring lock took %v, removing took %v", counter, actualStart.Sub(start), time.Since(actualStart))
 	}()
-	log.Println("removing inactive users")
 	start = time.Now()
 
 	ur.Lock()
@@ -45,6 +45,7 @@ func (ur *UserRegistry) RemoveInactive(minutes int) {
 	for id, u := range ur.users {
 		if time.Since(u.LastAccessTime).Minutes() > float64(minutes) {
 			delete(ur.users, id)
+			counter++
 		}
 	}
 }
@@ -52,16 +53,17 @@ func (ur *UserRegistry) RemoveInactive(minutes int) {
 func (ur *UserRegistry) Sync() {
 	var start time.Time
 	var actualStart time.Time
+	var counter int = 0
 	defer func() {
-		log.Printf("synced users; aquiring lock took %v, syncing took %v", actualStart.Sub(start), time.Since(actualStart))
+		log.Printf("synced %v users; aquiring lock took %v, syncing took %v", counter, actualStart.Sub(start), time.Since(actualStart))
 	}()
-	log.Println("syncing users...")
 	start = time.Now()
 
 	ur.RLock()
 	defer ur.RUnlock()
 
 	actualStart = time.Now()
+	counter = len(ur.users)
 	if err := ur.userStorage.UpdateWithMap(ur.users); err != nil {
 		log.Printf("error updating users: %v", err)
 	}

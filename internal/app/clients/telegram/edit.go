@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func (c *Client) EditMediaMessageByUser(userFromRegistry *models.User, message *Message, mType localization.MessageType) (err error) {
@@ -111,14 +112,14 @@ func (c *Client) EditMediaMessage(chatID int64, messageID int64, caption string,
 		c.ir.Save(image, mes.Result.Photo[len(mes.Result.Photo)-1].FileID)
 
 	} else if errors.Is(err, fs.ErrNotExist) {
-		err = nil
-		inputMediaPhoto.Media = image
-		var jsonBytes []byte
-		jsonBytes, err = json.Marshal(inputMediaPhoto)
-		values.Add("media", string(jsonBytes))
-		_, err = c.doRequest(editMessageMediaMethod, values, nil, nil)
-	} else {
-		return
+		if strings.HasPrefix(image, "AgACAg") {
+			err = nil
+			inputMediaPhoto.Media = image
+			var jsonBytes []byte
+			jsonBytes, err = json.Marshal(inputMediaPhoto)
+			values.Add("media", string(jsonBytes))
+			_, err = c.doRequest(editMessageMediaMethod, values, nil, nil)
+		}
 	}
 
 	return

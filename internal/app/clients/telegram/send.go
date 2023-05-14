@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func (c *Client) SendTextMessageByUser(userFromRegistry *models.User, mType localization.MessageType) (err error) {
@@ -102,11 +103,11 @@ func (c *Client) SendImage(ID int64, text string, image string, replyMarkup Repl
 		c.ir.Save(image, mes.Result.Photo[len(mes.Result.Photo)-1].FileID)
 
 	} else if errors.Is(err, fs.ErrNotExist) {
-		err = nil
-		values.Add("photo", image)
-		_, err = c.doRequest(sendPhotoMethod, values, nil, nil)
-	} else {
-		return
+		if strings.HasPrefix(image, "AgACAg") {
+			err = nil
+			values.Add("photo", image)
+			_, err = c.doRequest(sendPhotoMethod, values, nil, nil)
+		}
 	}
 
 	return
